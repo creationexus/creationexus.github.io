@@ -1,0 +1,134 @@
+<html>
+<head>
+<script type="text/javascript">
+function parteEntera(frac, resto){
+	return (frac - resto);
+}
+function dec2binRec(n){
+	return (n < 1) ? "": dec2binRec(parteEntera(n, n%2)/2) + (n%2);
+}
+function dec2bin(n){
+	return (("00000000" + dec2binRec(n)).slice(-8));
+}
+function dec2bin2(n, largo){
+	var strr = "";
+	for(var i = 0; i < largo; i++) strr += "0";
+	return ((strr + dec2binRec(n)).slice(-largo));
+}
+function octetos(ip){
+	var octetos = new Array();
+	octetos = ip.split(".");
+	return octetos;
+}
+function calcularsubs(cantidad){
+//2^x-2>=cantidad
+var i;
+for(i = 0; (Math.pow(2,i)-2) < cantidad; i++) {} 
+return i;
+}
+function bin2dec(bin){
+var dec = 0;
+for(var i = bin.length-1, j = 0; i >= 0; i--, j++)
+	dec += Math.pow(2, j) * parseInt(bin.charAt(i));
+return dec;
+}
+function oct2dec(bin){
+var p1 = bin.substring(0,8);
+var p2 = bin.substring(8,16);
+var p3 = bin.substring(16,24);
+var p4 = bin.substring(24,32);
+
+return bin2dec(p1) + "." + bin2dec(p2) + "." + bin2dec(p3) + "." + bin2dec(p4);
+}
+function countbin(bin, n){
+	var dec = bin2dec(bin);
+	if(n >= 0) dec++; else dec--;	//incrementa o decrementa
+	return dec2bin2(dec, bin.length);	
+}
+
+function countsubn(cadena, n ,ini, fin){ //para ands
+var subcad = cadena.substring(ini, fin);
+var totcad = cadena.substring(0, ini) + countbin(subcad, n) + cadena.substring(fin, cadena.length);
+return totcad;
+}
+
+function agregartexto(cadena, pos, str){
+var cad = "";
+if(pos <= cadena.length){
+cad += cadena.substring(0, pos);
+cad += str;
+cad += cadena.substring(pos, cadena.length);
+}
+return cad;
+}
+function formato(cadena, des, ini, fin){
+var cad = cadena;
+//Los puntos no varian
+cad = agregartexto(cad, 8, "."); // 0 . ant
+cad = agregartexto(cad, 16+1, "."); // 1 . ant
+cad = agregartexto(cad, 24+2, "."); // 2 . ant
+//Buscar en que octeto se encuentra ini y fin y calcular la diferencia entre ellos...
+var p1, p2;
+for(var i = 0; i*8 < 32; i++) if((ini > 8*i) && (ini <= 8*(i+1))) {p1 = i; break;}
+for(var i = 0; i*8 < 32; i++) if((fin > 8*i) && (fin <= 8*(i+1))) {p2 = i; break;}
+
+var diff = p2-p1;
+
+cad = agregartexto(cad, ini+p1, "|");
+cad = agregartexto(cad, fin+diff+p1, "|");
+
+cad = agregartexto(cad, 0, des);
+return cad;
+}
+function subnetting(ip, mascara, cantidad){
+var ip = octetos(ip);
+var mascara = octetos(mascara);
+
+//mascara
+	var mascaras = "";
+	for(var i = 0; i < mascara.length; i++)
+		mascaras += dec2bin(mascara[i]);
+		
+	var posm = mascaras.lastIndexOf("1") + 1;
+	var subsr = calcularsubs(cantidad) + 1;
+		
+//ip
+	var ips = "";	
+	for(var i = 0; i < ip.length; i++)
+		ips += dec2bin(ip[i]);		
+
+//and
+	var ands = "";
+	for(var i = 0; (i < ip.length) && (i < mascara.length); i++)
+		ands += dec2bin(ip[i] & mascara[i]);
+	
+		document.write("<br><b>"+formato(ips, "IP> ", posm, posm + subsr)+"</b>");		
+		
+		document.write("<br><b>"+formato(mascaras, "MSK> ", posm, posm + subsr)+"</b>");
+		
+		document.write("<br><b>"+formato(ands, "AND> ", posm, posm + subsr)+"</b>");
+		
+		var count = ands;
+		for(var i = 0; i < cantidad; i++){ 
+			count = countsubn(count, 1, posm, posm+subsr-1);
+			document.write("<br><br><b>"+formato(count, "AND> ", posm, posm + subsr)+" -> "+oct2dec(count)+"</b>");
+			var countsub = count;
+			for(var j = 0; j < 3; j++){ //3 primeras sub.redes.
+				countsub = countsubn(countsub, 1, posm+subsr, countsub.length);
+				document.write("<br><b>"+formato(countsub, "IP "+(j+1)+"> ", posm, posm + subsr)+" -> "+oct2dec(countsub)+"</b>");
+			}		
+		}		
+		
+	return 1;
+}
+</script>
+</head>
+<body>
+<form name="form1" action="" method="post" onSubmit="">
+        IP:<input type="text" name="ip"><br>
+        Mascara:<input type="text" name="mascara"><br>
+        Cantidad:<input type="text" name="cantidad"><br>
+		<input type="button" value="Calcular" onClick="subnetting(ip.value, mascara.value, cantidad.value);">
+	</form>
+</body>
+</html>
