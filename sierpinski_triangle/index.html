@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <title>Sierpinski</title>
+  </head>
+
+  <body>
+    <canvas id="canvas" width="1000" height="800"> Error canvas </canvas>
+  </body>
+  <script type="text/javascript">
+    var pos = { x: 100, y: 700 };
+    var len_line = 6;
+    function getAngle(x, y, angle, h) {
+      var radians = angle * (Math.PI / 180);
+      return { x: x + h * Math.cos(radians), y: y + h * Math.sin(radians) };
+    }
+    function draw(angle) {
+      var canvas = document.getElementById("canvas");
+      if (canvas.getContext) {
+        var ctx = canvas.getContext("2d");
+        var f = ["A", "B", "+", "-"];
+        var r = ["B-A-B", "A+B+A", "+", "-"];
+
+        //var f=["X","Y","F","+","-"];
+        //var r=["XFYFX+F+YFXFY-F-XFYFX","YFXFY-F-XFYFX+F+YFXFY;F","F","+","-"];
+
+        var rules = [f, r];
+        var init = "A";
+        trans(init, rules, ctx, 0, angle, 0);
+      }
+    }
+    function sierpinski(o, r, c) {
+      if (c < o.length) {
+        for (i = 0; i < r[0].length; i++) {
+          if (r[0][i] == o[c]) {
+            return r[1][i] + sierpinski(o, r, c + 1);
+          }
+        }
+        return sierpinski(o, r, c + 1);
+      } else {
+        return "";
+      }
+    }
+    function sierpinski_it(o, r) {
+      var x = "";
+      for (c = 0; c < o.length; c++) {
+        for (i = 0; i < r[0].length; i++) {
+          if (r[0][i] == o[c]) {
+            x += r[1][i];
+          }
+        }
+      }
+      return x;
+    }
+    function trans(ax, rules, ctx, angle_sum, angle, it) {
+      ctx.beginPath();
+      ctx.fillStyle = "#000000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (it > 6) {
+        for (i = 0; i < ax.length; i++) {
+          if (ax[i] == "+") {
+            angle_sum = (angle + angle_sum) % 360;
+            continue;
+          } else if (ax[i] == "-") {
+            angle_sum = (-angle + angle_sum) % 360;
+            continue;
+          } else {
+            angle_sum = angle_sum % 360;
+          }
+          ctx.moveTo(pos.x, pos.y);
+          pos = getAngle(pos.x, pos.y, angle_sum, len_line);
+          ctx.lineTo(pos.x, pos.y);
+          ctx.strokeStyle = "#cccccc";
+        }
+
+        ctx.stroke();
+        ctx.closePath();
+        return;
+      }
+
+      ax = sierpinski_it(ax, rules);
+      console.log(ax);
+      trans(ax, rules, ctx, angle_sum, angle, it + 1);
+    }
+    //Grado de giro en cada signo 60 default
+    window.load = draw(60);
+  </script>
+</html>
