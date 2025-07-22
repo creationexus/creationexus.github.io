@@ -1,0 +1,537 @@
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>
+      var suma = 0;
+      var cliente = 0;
+      var total = 0;
+      function deleteme(obj) {
+        $(obj).parent().remove();
+      }
+      function hideme(obj) {
+        if ($(obj).siblings().is(":visible")) {
+          $(obj).siblings().hide();
+        } else {
+          $(obj).siblings().show();
+        }
+      }
+      function suma_pedido(str, val) {
+        if (val == 0) {
+          total += suma;
+          suma = 0;
+          cliente++;
+          $("#total").text("$" + total);
+          $("#salida").prepend(
+            '<div style="border: 1px solid black;" id="cl-' +
+              cliente +
+              '"><a href="#" onclick="hideme(this)">Cliente ' +
+              cliente +
+              '</a>--<a href="#" onclick="deleteme(this)">X</a><div id="contenido"></div></div>'
+          );
+        } else {
+          suma += val;
+        }
+        $("#salida #cl-" + cliente + " #contenido").prepend(
+          str + ":" + val + "=" + suma + "<br />"
+        );
+      }
+    </script>
+    <head>
+      <body>
+        <input
+          type="button"
+          value="Abrir Pedido"
+          onclick="suma_pedido(this.value, 0)"
+        />
+        <div id="total" style="font-size: 18px">0</div>
+        <input type="text" id="buscar" />
+
+        <div id="contenedor" style="width: 100%; overflow: hidden">
+          <div id="precios" style="width: 75%; position: absolute">
+            <br />
+            <div id="colacion">
+              <h3>Colación</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion carne mongoliana (CC)"
+                onclick="suma_pedido(this.value, 2800)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion pollo mongoliano (PC)"
+                onclick="suma_pedido(this.value, 2800)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion chancho mongoliano"
+                onclick="suma_pedido(this.value, 2800)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion chapsui de ave"
+                onclick="suma_pedido(this.value, 2600)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion chapsui de carne"
+                onclick="suma_pedido(this.value, 2600)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion chapsui de chancho"
+                onclick="suma_pedido(this.value, 2600)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="colacion pollo chanpiñon"
+                onclick="suma_pedido(this.value, 3200)"
+              />
+            </div>
+            <br />
+            <div id="aperitivo">
+              <h3>Aperitivo</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="wantan frito (WF)"
+                onclick="suma_pedido(this.value, 1000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arrollado primavera (AP)"
+                onclick="suma_pedido(this.value, 1200)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arrollado queso jamon (AQJ)"
+                onclick="suma_pedido(this.value, 1600)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="camaron mandarin"
+                onclick="suma_pedido(this.value, 2700)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="hoja de camaron"
+                onclick="suma_pedido(this.value, 1100)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo mandarin"
+                onclick="suma_pedido(this.value, 2300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arrollado de queso"
+                onclick="suma_pedido(this.value, 1600)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="copa de oro"
+                onclick="suma_pedido(this.value, 2800)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arrollado de marisco"
+                onclick="suma_pedido(this.value, 3700)"
+              />
+            </div>
+            <br />
+            <div id="sopa">
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="sopa wantan min"
+                onclick="suma_pedido(this.value, 2000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="sopa wantan"
+                onclick="suma_pedido(this.value, 1900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="sopa i fu min"
+                onclick="suma_pedido(this.value, 2000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="sopa hanchow"
+                onclick="suma_pedido(this.value, 2000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="sopa especial"
+                onclick="suma_pedido(this.value, 2300)"
+              />
+            </div>
+            <br />
+            <div id="arroz">
+              <h3>Arroz</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arroz chaufan (ACH)"
+                onclick="suma_pedido(this.value, 900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arroz blanco"
+                onclick="suma_pedido(this.value, 900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="arroz especial"
+                onclick="suma_pedido(this.value, 2800)"
+              />
+            </div>
+            <br />
+            <div id="chancho">
+              <h3>Chancho</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chancho tausi"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chancho mongoliano"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chancho al ajo"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chancho con piña"
+                onclick="suma_pedido(this.value, 4100)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="costillar cantones"
+                onclick="suma_pedido(this.value, 4100)"
+              />
+            </div>
+            <br />
+            <div id="pollos">
+              <h3>Pollos</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo champiñon"
+                onclick="suma_pedido(this.value, 4200)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo al ajo"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo chungsan"
+                onclick="suma_pedido(this.value, 4200)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo con piña"
+                onclick="suma_pedido(this.value, 4300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo mongoliano (PC)"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo chiten"
+                onclick="suma_pedido(this.value, 4100)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo tausi"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="pollo chicharron"
+                onclick="suma_pedido(this.value, 4000)"
+              />
+            </div>
+            <br />
+            <div id="chapsui">
+              <h3>Chapsui</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui de camaron"
+                onclick="suma_pedido(this.value, 5000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui especial"
+                onclick="suma_pedido(this.value, 4000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui de carne (CHANE)"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui de pollo (CHAV)"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui de chancho"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chapsui de verduras"
+                onclick="suma_pedido(this.value, 2700)"
+              />
+            </div>
+            <br />
+            <div id="dientededragon">
+              <h3>Diente de Dragon</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="diente de dragon con camaron"
+                onclick="suma_pedido(this.value, 5000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="diente de dragon con pollo"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="diente de dragon con carne"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="diente de dragon con chancho"
+                onclick="suma_pedido(this.value, 3000)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="diente de dragon solo"
+                onclick="suma_pedido(this.value, 2700)"
+              />
+            </div>
+            <br />
+            <div id="vacuno">
+              <h3>Vacuno</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="carne mongoliana (CC)"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="carne mongoliana con aji (CC C/AJI)"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="carne chunsan"
+                onclick="suma_pedido(this.value, 4300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="carne champiñon"
+                onclick="suma_pedido(this.value, 4300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="carne cantonesa"
+                onclick="suma_pedido(this.value, 3900)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="parrillada china"
+                onclick="suma_pedido(this.value, 4700)"
+              />
+            </div>
+            <br />
+            <div id="chaumin">
+              <h3>Chaumin</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chaumin especial"
+                onclick="suma_pedido(this.value, 3500)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chaumin con carne"
+                onclick="suma_pedido(this.value, 3300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chaumin con pollo"
+                onclick="suma_pedido(this.value, 3300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="chaumin con chancho"
+                onclick="suma_pedido(this.value, 3300)"
+              />
+            </div>
+            <br />
+            <div id="menu">
+              <h3>Menu</h3>
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 2 personas(A)"
+                onclick="suma_pedido(this.value, 8300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 2 personas(B)"
+                onclick="suma_pedido(this.value, 9400)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 2 personas(C)"
+                onclick="suma_pedido(this.value, 10700)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 3 personas"
+                onclick="suma_pedido(this.value, 13700)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 4 personas"
+                onclick="suma_pedido(this.value, 18200)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 5 personas"
+                onclick="suma_pedido(this.value, 20300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 6 personas"
+                onclick="suma_pedido(this.value, 24800)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 8 personas"
+                onclick="suma_pedido(this.value, 31300)"
+              />
+              <input
+                style="width: auto; height: 100px"
+                type="button"
+                value="menu para 10 personas"
+                onclick="suma_pedido(this.value, 44400)"
+              />
+            </div>
+          </div>
+
+          <div
+            id="salida"
+            style="
+              width: 25%;
+              left: 74%;
+              border: 1px solid black;
+              padding: 3px;
+              position: absolute;
+            "
+          ></div>
+          <br clear="all" />
+        </div>
+      </body>
+      <script>
+        function ucFirst(string) {
+          return (
+            string.substr(0, 1).toUpperCase() +
+            string.substr(1, string.length).toLowerCase()
+          );
+        }
+        $("#buscar").keyup(function () {
+          if ($("#buscar").val() != "") {
+            $("div").css("background", "white");
+            $("#contenedor div#precios div").hide();
+            //$("#contenedor input:not([value*='"+ucFirst($('#buscar').val())+"'])").parent().hide();
+            $("#contenedor :button").each(function (i, e) {
+              if ($(this).val().indexOf($("#buscar").val()) >= 0) {
+                $(this).css("background", "yellow");
+                $(this).parent().show();
+              } else {
+                $(this).css("background", "");
+              }
+            });
+          }
+        });
+      </script>
+      <html></html>
+    </head>
+  </head>
+</html>
