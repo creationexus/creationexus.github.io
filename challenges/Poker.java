@@ -1,3 +1,5 @@
+package challenges;
+
 // # Poker
 // Implementar un algoritmo que entregue el ganador de una mano de póker con varios jugadores, usando solo una baraja con las 52 cartas (4 pintas de 13 cartas cada una). Cada jugador recibe 5 cartas de manera aleatoria. La cantidad de ‘N’ jugadores será menor o igual al máximo que se puede tener dado la cantidad de cartas disponibles.
 
@@ -20,3 +22,21 @@
 // 6) El código debe compilar y ejecutar, por lo tanto debes envíar un breve
 // brief de cómo utilizar tu app.
 // 7) Nivel de detalle sobre aspectos claves de un código fuente prolijo.
+
+public class Poker {
+    public static void main(String[] args) {
+        // Aquí se puede implementar la lógica para leer las manos de los jugadores,
+        // evaluar las combinaciones y determinar el ganador.
+        // Por ejemplo, se pueden crear clases para representar las cartas, manos y jugadores.
+        
+        // Ejemplo de uso:
+        // Player player1 = new Player("Jugador 1");
+        // player1.addCard(new Card("As", "Picas"));
+        // player1.addCard(new Card("Rey", "Picas"));
+        // ...
+        // HandEvaluator evaluator = new HandEvaluator();
+        // Player winner = evaluator.evaluateWinner(player1, player2, ...);
+        
+        System.out.println("Implementación del juego de Póker aún no completada.");
+    }
+}
