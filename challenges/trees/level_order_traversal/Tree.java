@@ -1,4 +1,4 @@
-package trees.level_order_traversal;
+package challenges.trees.level_order_traversal;
 
 import java.util.*;
 import java.io.*;
