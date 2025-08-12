@@ -1,0 +1,30 @@
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.exe
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.pdb
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.xml
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Form1.resources
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Resources.resources
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.vbproj.GenerateResource.Cache
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.exe
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.xml
+C:\Users\CArriagada\Documents\Visual Studio 2005\Projects\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.pdb
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.exe
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.xml
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.pdb
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.exe
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.pdb
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.xml
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Form1.resources
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Resources.resources
+C:\Users\Gustavo\Documents\Mis archivos recibidos\TragaperrosCiisiano(1)\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.vbproj.GenerateResource.Cache
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.exe
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.xml
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.pdb
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.exe
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.pdb
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\bin\Debug\TragaperrosCiisiano.xml
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Form1.resources
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.Resources.resources
+C:\Users\Gustavo\Desktop\TragaperrosCiisiano\TragaperrosCiisiano\obj\Debug\TragaperrosCiisiano.vbproj.GenerateResource.Cache
