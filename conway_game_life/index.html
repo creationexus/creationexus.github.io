@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Conway's Game of Life</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            border: 1px solid #333;
+            margin: 20px 0;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 8px 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #speed {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conway's Game of Life</h1>
+        <div class="controls">
+            <button id="startStop">Start</button>
+            <button id="clear">Clear</button>
+            <button id="random">Random</button>
+        </div>
+        <div>
+            <label for="speed">Speed: </label>
+            <input type="range" id="speed" min="1" max="60" value="10">
+            <span id="speedValue">10 FPS</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startStopButton = document.getElementById('startStop');
+        const clearButton = document.getElementById('clear');
+        const randomButton = document.getElementById('random');
+        const speedSlider = document.getElementById('speed');
+        const speedValue = document.getElementById('speedValue');
+
+        const cellSize = 15;
+        const rows = 40;
+        const cols = 60;
+
+        canvas.width = cols * cellSize;
+        canvas.height = rows * cellSize;
+
+        let grid = createGrid();
+        let isRunning = false;
+        let animationId = null;
+        let lastFrameTime = 0;
+
+        function createGrid() {
+            return new Array(rows).fill(null)
+                .map(() => new Array(cols).fill(false));
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw cells
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (grid[i][j]) {
+                        ctx.fillStyle = '#000';
+                        ctx.fillRect(j * cellSize, i * cellSize, cellSize - 1, cellSize - 1);
+                    }
+                }
+            }
+        }
+
+        function countNeighbors(row, col) {
+            let count = 0;
+            for (let i = -1; i <= 1; i++) {
+                for (let j = -1; j <= 1; j++) {
+                    if (i === 0 && j === 0) continue;
+                    const newRow = row + i;
+                    const newCol = col + j;
+                    if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+                        count += grid[newRow][newCol] ? 1 : 0;
+                    }
+                }
+            }
+            return count;
+        }
+
+        function updateGrid() {
+            const newGrid = createGrid();
+            
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    const neighbors = countNeighbors(i, j);
+                    if (grid[i][j]) {
+                        newGrid[i][j] = neighbors === 2 || neighbors === 3;
+                    } else {
+                        newGrid[i][j] = neighbors === 3;
+                    }
+                }
+            }
+            
+            grid = newGrid;
+            drawGrid();
+        }
+
+        function animate(currentTime) {
+            if (!isRunning) return;
+
+            const frameInterval = 1000 / speedSlider.value;
+            const elapsed = currentTime - lastFrameTime;
+
+            if (elapsed > frameInterval) {
+                lastFrameTime = currentTime - (elapsed % frameInterval);
+                updateGrid();
+            }
+
+            animationId = requestAnimationFrame(animate);
+        }
+
+        function toggleSimulation() {
+            isRunning = !isRunning;
+            startStopButton.textContent = isRunning ? 'Stop' : 'Start';
+            
+            if (isRunning) {
+                lastFrameTime = performance.now();
+                animate(lastFrameTime);
+            } else {
+                cancelAnimationFrame(animationId);
+            }
+        }
+
+        function clearGrid() {
+            grid = createGrid();
+            drawGrid();
+        }
+
+        function randomizeGrid() {
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols; j++) {
+                    grid[i][j] = Math.random() > 0.7;
+                }
+            }
+            drawGrid();
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            const col = Math.floor(x / cellSize);
+            const row = Math.floor(y / cellSize);
+            
+            if (row >= 0 && row < rows && col >= 0 && col < cols) {
+                grid[row][col] = !grid[row][col];
+                drawGrid();
+            }
+        });
+
+        startStopButton.addEventListener('click', toggleSimulation);
+        clearButton.addEventListener('click', clearGrid);
+        randomButton.addEventListener('click', randomizeGrid);
+        speedSlider.addEventListener('input', () => {
+            speedValue.textContent = `${speedSlider.value} FPS`;
+        });
+
+        drawGrid();
+    </script>
+</body>
+</html>
