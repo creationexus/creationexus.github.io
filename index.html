@@ -137,8 +137,7 @@
         }
 
         .project-link {
-            display: block;
-            text-align: center;
+            display: inline-block;
             padding: 12px 30px;
             background: linear-gradient(45deg, #00d4ff, #7b2ff7);
             color: white;
@@ -146,11 +145,27 @@
             border-radius: 25px;
             font-weight: 600;
             transition: all 0.3s ease;
+            margin: 0 5px;
         }
 
         .project-link:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+        }
+
+        .source-link {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .source-link:hover {
+            box-shadow: 0 5px 20px rgba(46, 204, 113, 0.4);
+        }
+
+        .project-links {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
 
         .recommendation-badge {
@@ -314,13 +329,14 @@
 
     <script>
         // Configuración de proyectos con categorías
-         const projects = [
+        const projects = [
             {
                 icon: '🚀',
                 title: 'Quadratic Equation Solver',
                 description: 'Calculadora para resolver ecuaciones cuadráticas.',
                 tech: ['JavaScript'],
-                link: 'quadratic_equation/',
+                link: 'quadratic_equation',
+                source: 'quadratic_equation',
                 category: 'maths',
                 tags: ['math', 'calculator']
             },
@@ -329,7 +345,8 @@
                 title: 'Random Questions',
                 description: 'Generador de preguntas aleatorias.',
                 tech: ['JavaScript'],
-                link: 'random_questions/',
+                link: 'random_questions',
+                source: 'random_questions',
                 category: 'tools',
                 tags: ['questions']
             },
@@ -338,7 +355,8 @@
                 title: 'Subnetting Solver',
                 description: 'Herramienta para resolver calculos de subnetting en redes.',
                 tech: ['JavaScript'],
-                link: 'subnetting/',
+                link: 'subnetting',
+                source: 'subnetting',
                 category: 'networking',
                 tags: ['networking', 'subnetting']
             },
@@ -348,6 +366,7 @@
                 description: 'Sistema básico de gestión de órdenes para pequeñas empresas.',
                 tech: ['Javascript'],
                 link: 'order_handler',
+                source: 'order_handler',
                 category: 'tools',
                 tags: ['orders', 'management']
             },
@@ -356,7 +375,8 @@
                 title: 'Sierpinski Triangle Visualizer',
                 description: 'Visualizador del Triángulo de Sierpinski.',
                 tech: ['JavaScript'],
-                link: 'sierpinski_triangle/',
+                link: 'sierpinski_triangle',
+                source: 'sierpinski_triangle',
                 category: 'maths',
                 tags: ['maths', 'visualization']
             },
@@ -365,7 +385,8 @@
                 title: 'Conway Game Life',
                 description: 'Simulación del Juego de la Vida de Conway.',
                 tech: ['JavaScript'],
-                link: 'conway_game_life/',
+                link: 'conway_game_life',
+                source: 'conway_game_life',
                 category: 'gamedev',
                 tags: ['games', 'simulation']
             },
@@ -374,7 +395,8 @@
                 title: 'Word Search',
                 description: 'Juego de Sopa de Letras interactivo con sistema de puntuación.',
                 tech: ['JavaScript'],
-                link: 'word_search/',
+                link: 'word_search',
+                source: 'word_search',
                 category: 'gamedev',
                 tags: ['games', 'words']
             }
@@ -706,7 +728,10 @@
                 <div class="project-tech">
                     ${project.tech.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
                 </div>
-                <a href="${project.link}" target="_blank" class="project-link">Ver Proyecto →</a>
+                <div class="project-links">
+                    <a href="${project.link}" target="_blank" class="project-link">Ver Demo →</a>
+                    <a href="${project.source}" target="_blank" class="project-link source-link">📁 Código</a>
+                </div>
             `;
 
             document.getElementById('cardContainer').appendChild(card);
