@@ -242,7 +242,41 @@
     );
   }
 
-  /* YouTube URL input */
+  /* Ad overlay — shown during pre-roll ads */
+  #ad-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    padding-bottom: 32px;
+    pointer-events: none;   /* transparent by default — clicks pass to iframe below */
+  }
+  #ad-overlay.visible { display: flex; }
+  #ad-msg {
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,200,0,0.85);
+    text-shadow: 0 0 12px rgba(255,180,0,0.5);
+    background: rgba(3,2,10,0.7);
+    padding: 8px 20px;
+    border: 1px solid rgba(255,200,0,0.25);
+    animation: adPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes adPulse {
+    0%,100% { opacity: 0.7; }
+    50%      { opacity: 1.0; }
+  }
+
+  /* During ads: iframe needs pointer-events so user can click Skip */
+  #yt-container.ad-mode #yt-player iframe {
+    pointer-events: auto !important;
+  }
+  #yt-container.ad-mode #yt-mask {
+    pointer-events: none;
+  }
   .yt-input-wrap {
     display: flex; gap: 0;
     width: 100%; max-width: 480px;
@@ -397,15 +431,19 @@
     z-index: 10;
   }
 </style>
+  <!-- YouTube IFrame Player API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 <div id="app">
   <!-- YouTube video layer -->
   <div id="yt-container">
-    <iframe id="yt-iframe" id="yt-player"
-      frameborder="0" allow="autoplay; encrypted-media"
-      allowfullscreen></iframe>
+    <div id="yt-player"></div>
     <div id="yt-mask"></div>
+    <!-- Ad overlay: shown during ads so user can click Skip -->
+    <div id="ad-overlay">
+      <div id="ad-msg">⏩ Publicidad — haz clic en "Saltar" en el video</div>
+    </div>
   </div>
 
   <canvas id="bg-waves"></canvas>
@@ -561,9 +599,10 @@ let noteId = 0;
 let keysDown = {};
 
 // YouTube state
-let ytVideoId    = null;   // extracted video ID
-let ytReady      = false;  // true once URL is validated and loaded into iframe
-let audioMode    = 'song'; // 'song' | 'youtube'
+let ytVideoId      = null;
+let ytReady        = false;
+let ytVideoStarted = false;  // true once the actual video starts (past ads)
+let audioMode      = 'song';
 
 // visual
 let bloomIntensity = 0;
@@ -1192,26 +1231,30 @@ function gameLoop(timestamp) {
   const elapsed = (timestamp - gameStartTime) / 1000;
   difficulty = Math.min(1, elapsed / 120);
 
-  // ── Spawn notes driven by frequency energy × difficulty preset
-  const preset = DIFF_PRESETS[selectedDifficulty];
-  const specEnergy = bassEnergy * 0.4 + midEnergy * 0.35 + trebleEnergy * 0.25;
-  const targetCount = Math.round(specEnergy * LANE_COUNT * preset.countMult * (1 + difficulty * 0.4));
+  // ── Spawn notes — in YouTube mode wait until actual video starts (past ads)
+  const canSpawn = audioMode !== 'youtube' || ytVideoStarted;
 
-  spawnTimer += dt;
-  const activeCount = notes.filter(n => n.active).length;
+  if (canSpawn) {
+    const preset = DIFF_PRESETS[selectedDifficulty];
+    const specEnergy = bassEnergy * 0.4 + midEnergy * 0.35 + trebleEnergy * 0.25;
+    const targetCount = Math.round(specEnergy * LANE_COUNT * preset.countMult * (1 + difficulty * 0.4));
 
-  if (spawnTimer >= preset.minInterval && activeCount < targetCount) {
-    spawnTimer = 0;
-    const toSpawn = Math.min(3, targetCount - activeCount);
-    const usedLanes = new Set(notes.filter(n => n.active).map(n => n.lane));
-    let spawned = 0, attempts = 0;
-    while (spawned < toSpawn && attempts < 20) {
-      attempts++;
-      const lane = Math.floor(Math.random() * LANE_COUNT);
-      if (!usedLanes.has(lane)) {
-        spawnNote(lane);
-        usedLanes.add(lane);
-        spawned++;
+    spawnTimer += dt;
+    const activeCount = notes.filter(n => n.active).length;
+
+    if (spawnTimer >= preset.minInterval && activeCount < targetCount) {
+      spawnTimer = 0;
+      const toSpawn = Math.min(3, targetCount - activeCount);
+      const usedLanes = new Set(notes.filter(n => n.active).map(n => n.lane));
+      let spawned = 0, attempts = 0;
+      while (spawned < toSpawn && attempts < 20) {
+        attempts++;
+        const lane = Math.floor(Math.random() * LANE_COUNT);
+        if (!usedLanes.has(lane)) {
+          spawnNote(lane);
+          usedLanes.add(lane);
+          spawned++;
+        }
       }
     }
   }
@@ -1229,6 +1272,102 @@ function gameLoop(timestamp) {
   drawKeyLabels();
 
   animFrameId = requestAnimationFrame(gameLoop);
+}
+
+// ─── YOUTUBE PLAYER API ───────────────────────────────────────────────────────
+// Called by YouTube API once the script loads
+window.onYouTubeIframeAPIReady = function() {
+  window._ytApiReady = true;
+};
+
+function launchYTPlayer(videoId) {
+  // Destroy previous instance if any
+  try { if (window._ytPlayer) { window._ytPlayer.destroy(); window._ytPlayer = null; } } catch(e) {}
+
+  const container = document.getElementById('yt-container');
+  const adOverlay = document.getElementById('ad-overlay');
+  // Enter ad mode immediately (assume ad will play first)
+  container.classList.add('ad-mode');
+  adOverlay.classList.add('visible');
+  ytVideoStarted = false;
+
+  const create = () => {
+    window._ytPlayer = new YT.Player('yt-player', {
+      videoId,
+      playerVars: {
+        autoplay: 1,
+        controls: 1,        // keep controls visible so user can skip ads
+        rel: 0,
+        modestbranding: 1,
+        iv_load_policy: 3,
+      },
+      events: {
+        onReady(e) { e.target.playVideo(); },
+        onStateChange(e) {
+          const s = e.data;
+          // YT.PlayerState: -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
+          // AD_PLAYING state is also 1, but ads fire a separate onAdStateChange.
+          // We detect "real video started" via the ad API if available, or via
+          // checking getVideoLoadedFraction() > 0 while playing.
+          if (s === YT.PlayerState.PLAYING) {
+            // Check if this is a real video play (not an ad)
+            const player = e.target;
+            const isAd = typeof player.getAdState === 'function'
+              ? player.getAdState() !== -1    // -1 means no ad
+              : false;
+
+            if (!isAd && !ytVideoStarted) {
+              ytVideoStarted = true;
+              container.classList.remove('ad-mode');
+              adOverlay.classList.remove('visible');
+              // Reduce controls back to minimal now that ad is gone
+              // (can't change playerVars after init, but we can hide controls via CSS)
+              const iframe = container.querySelector('iframe');
+              if (iframe) iframe.style.pointerEvents = 'none';
+            }
+          }
+          // While ad-mode: keep pointer-events on so user can click Skip
+          if (!ytVideoStarted) {
+            const iframe = container.querySelector('iframe');
+            if (iframe) iframe.style.pointerEvents = 'auto';
+          }
+          if (s === YT.PlayerState.ENDED) endGame();
+        },
+        onAdStateChange(e) {
+          // AD_PLAYING = 1, AD_FINISHED = -1
+          const container = document.getElementById('yt-container');
+          const adOverlay = document.getElementById('ad-overlay');
+          const iframe    = container.querySelector('iframe');
+          if (e.data === 1) {
+            // Ad is playing — allow clicks to reach iframe (for Skip button)
+            container.classList.add('ad-mode');
+            adOverlay.classList.add('visible');
+            if (iframe) iframe.style.pointerEvents = 'auto';
+          } else {
+            // Ad ended — disable pointer-events, start spawning notes
+            container.classList.remove('ad-mode');
+            adOverlay.classList.remove('visible');
+            if (iframe) iframe.style.pointerEvents = 'none';
+            if (!ytVideoStarted) {
+              ytVideoStarted = true;
+            }
+          }
+        },
+      },
+    });
+  };
+
+  if (window._ytApiReady || typeof YT !== 'undefined') {
+    create();
+  } else {
+    // API not loaded yet — wait
+    const poll = setInterval(() => {
+      if (typeof YT !== 'undefined' && YT.Player) {
+        clearInterval(poll);
+        create();
+      }
+    }, 100);
+  }
 }
 
 // ─── GAME FLOW ────────────────────────────────────────────────────────────────
@@ -1252,17 +1391,13 @@ function startGame() {
   badge.style.color = preset.color;
 
   if (audioMode === 'youtube') {
-    // No AudioContext — play YouTube iframe and run game with synthetic energies
-    analyser = null;
-    audioBuffer = null;
+    analyser = null; audioBuffer = null;
     const ytContainer = document.getElementById('yt-container');
     if (ytReady) {
       ytContainer.classList.add('active');
-      // Reload iframe with autoplay
-      const iframe = document.getElementById('yt-iframe');
-      iframe.src = `https://www.youtube.com/embed/${ytVideoId}?autoplay=1&mute=0&controls=0&loop=1&playlist=${ytVideoId}&rel=0&modestbranding=1`;
+      ytVideoStarted = false;
+      launchYTPlayer(ytVideoId);
     }
-    // Game ends manually (no audio onended) — run indefinitely until user exits
     gameRunning = true;
     gameStartTime = performance.now();
     lastTime = gameStartTime;
@@ -1282,10 +1417,12 @@ function endGame() {
   gameRunning = false;
   cancelAnimationFrame(animFrameId);
 
-  // Stop YouTube iframe if active
-  const iframe = document.getElementById('yt-iframe');
-  if (iframe && audioMode === 'youtube') iframe.src = '';
-  document.getElementById('yt-container').classList.remove('active');
+  if (audioMode === 'youtube') {
+    try { if (window._ytPlayer) { window._ytPlayer.stopVideo(); window._ytPlayer.destroy(); window._ytPlayer = null; } } catch(e) {}
+    document.getElementById('yt-container').classList.remove('active', 'ad-mode');
+    document.getElementById('ad-overlay').classList.remove('visible');
+    document.getElementById('yt-player').innerHTML = '';
+  }
 
   document.getElementById('result-score').textContent = score.toLocaleString();
   document.getElementById('r-perfect').textContent = stats.perfect;
@@ -1399,12 +1536,13 @@ document.getElementById('yt-load-btn').addEventListener('click', () => {
   ytReady   = true;
   audioMode = 'youtube';
 
-  // Show preview thumbnail
   statusEl.innerHTML = `✓ Video listo · <span style="opacity:.5;font-size:10px">${id}</span>`;
   statusEl.className = 'yt-status ok';
-  // Preview iframe (muted, no autoplay yet)
-  const iframe = document.getElementById('yt-iframe');
-  iframe.src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1`;
+  // Preview iframe (muted, no autoplay yet) — just show thumbnail via embed
+  const playerDiv = document.getElementById('yt-player');
+  playerDiv.innerHTML = `<iframe style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;opacity:0.55;"
+    src="https://www.youtube.com/embed/${id}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1"
+    frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
   document.getElementById('yt-container').classList.add('active');
   enableStart();
 });
@@ -1422,10 +1560,12 @@ startBtn.addEventListener('click', () => {
 document.getElementById('retry-btn').addEventListener('click', () => {
   document.getElementById('over-screen').classList.add('hidden');
   document.getElementById('start-screen').classList.remove('hidden');
-  // Re-show YT preview if was active
+  ytVideoStarted = false;
   if (ytReady && audioMode === 'youtube') {
-    const iframe = document.getElementById('yt-iframe');
-    iframe.src = `https://www.youtube.com/embed/${ytVideoId}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1`;
+    const playerDiv = document.getElementById('yt-player');
+    playerDiv.innerHTML = `<iframe style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;opacity:0.55;"
+      src="https://www.youtube.com/embed/${ytVideoId}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1"
+      frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
     document.getElementById('yt-container').classList.add('active');
   }
 });
