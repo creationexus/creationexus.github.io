@@ -40,12 +40,12 @@
     width: 100%; height: 100%;
   }
 
-  /* Background wave canvas — behind game canvas but above YouTube */
+  /* Background wave canvas — behind everything */
   canvas#bg-waves {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 3;
+    z-index: 0;
     pointer-events: none;
   }
 
@@ -206,141 +206,8 @@
     text-transform: uppercase;
   }
 
-  /* YouTube video background */
-  #yt-container {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    overflow: hidden;
-    display: none;
-  }
-  #yt-container.active { display: block; }
-
-  /* The div YT API replaces with an iframe — must fill screen */
-  #yt-player {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    /* Cover full screen regardless of 16:9 vs viewport ratio */
-    width: max(100vw, 177.78vh);
-    height: max(100vh, 56.25vw);
-    opacity: 0.5;
-  }
-  /* The iframe YouTube API injects */
-  #yt-player iframe {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-  /* Allow clicks through to iframe when ads are playing */
-  #yt-container.ad-mode #yt-player,
-  #yt-container.ad-mode #yt-player iframe {
-    pointer-events: auto;
-  }
-
-  /* Radial mask: darken center so orbit is readable over video */
-  #yt-mask {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse 44% 44% at 50% 50%,
-      rgba(3,2,10,0.94) 0%,
-      rgba(3,2,10,0.80) 30%,
-      rgba(3,2,10,0.40) 52%,
-      rgba(3,2,10,0.0)  68%
-    );
-  }
-
-  /* Ad banner + manual "start" button */
-  #ad-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 20;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    padding-bottom: 36px;
-    gap: 12px;
-    pointer-events: none;
-  }
-  #ad-overlay.visible { display: flex; }
-  #ad-msg {
-    font-family: 'Orbitron', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    color: rgba(255,200,0,0.9);
-    text-shadow: 0 0 12px rgba(255,180,0,0.5);
-    background: rgba(3,2,10,0.75);
-    padding: 7px 20px;
-    border: 1px solid rgba(255,200,0,0.3);
-    animation: adPulse 1.5s ease-in-out infinite;
-    pointer-events: none;
-  }
-  #ad-start-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    padding: 11px 28px;
-    background: rgba(0,255,136,0.12);
-    border: 1.5px solid #00ff88;
-    color: #00ff88;
-    cursor: pointer;
-    pointer-events: auto;
-    transition: all 0.2s;
-    box-shadow: 0 0 20px rgba(0,255,136,0.2);
-  }
-  #ad-start-btn:hover { background: rgba(0,255,136,0.25); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
-  @keyframes adPulse {
-    0%,100% { opacity: 0.7; }
-    50%      { opacity: 1.0; }
-  }
-  .yt-input-wrap {
-    display: flex; gap: 0;
-    width: 100%; max-width: 480px;
-  }
-  .yt-input {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-right: none;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    padding: 11px 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .yt-input::placeholder { color: rgba(255,255,255,0.25); }
-  .yt-input:focus { border-color: rgba(255,51,51,0.6); }
-  .yt-input.valid { border-color: rgba(255,80,80,0.7); background: rgba(255,40,40,0.06); }
-  .yt-load-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 11px 18px;
-    background: rgba(255,40,40,0.15);
-    border: 1.5px solid rgba(255,80,80,0.4);
-    color: #ff6060;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .yt-load-btn:hover { background: rgba(255,40,40,0.3); color: #fff; }
-  .yt-status {
-    font-size: 11px; letter-spacing: 1px;
-    color: var(--dim); text-align: center;
-    min-height: 16px;
-  }
-  .yt-status.ok  { color: #ff6060; }
-  .yt-status.err { color: #ff3366; }
+  /* Lane key labels */
+  #lane-labels {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
@@ -455,23 +322,11 @@
     z-index: 10;
   }
 </style>
-  <!-- YouTube IFrame Player API -->
-  <script src="https://www.youtube.com/iframe_api"></script>
 </head>
 <body>
 <div id="app">
-  <!-- YouTube video layer -->
-  <div id="yt-container">
-    <div id="yt-player"></div>
-    <div id="yt-mask"></div>
-    <div id="ad-overlay">
-      <div id="ad-msg">⏩ Publicidad reproduciéndose — puedes hacer clic en "Saltar"</div>
-      <button id="ad-start-btn">▶ Ya empezó el video</button>
-    </div>
-  </div>
-
   <canvas id="bg-waves"></canvas>
-  <canvas id="game" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:4;"></canvas>
+  <canvas id="game"></canvas>
   <canvas id="lane-labels" style="position:absolute;top:0;left:0;pointer-events:none;z-index:5;"></canvas>
 
   <div id="hud">
@@ -498,35 +353,35 @@
 
     <!-- Preset song list -->
     <div class="song-section">
-      <div class="song-section-title">Canciones</div>
+      <div class="song-section-title">Songs</div>
       <div class="song-list" id="song-list">
-        <div class="song-item" data-src="song1.mp3" data-name="Song 1" data-artist="Artist 1">
+        <div class="song-item" data-src="210000_leguas.mp3" data-name="Song 1" data-artist="Artist 1">
           <span class="song-num">01</span>
-          <span class="song-name">Song 1</span>
+          <span class="song-name">210.000 Leguas</span>
           <span class="song-artist">Artist 1</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song2.mp3" data-name="Song 2" data-artist="Artist 2">
+        <div class="song-item" data-src="Jupiter.mp3" data-name="Song 2" data-artist="Artist 2">
           <span class="song-num">02</span>
-          <span class="song-name">Song 2</span>
+          <span class="song-name">Jupyter</span>
           <span class="song-artist">Artist 2</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song3.mp3" data-name="Song 3" data-artist="Artist 3">
+        <div class="song-item" data-src="Rising.mp3" data-name="Song 3" data-artist="Artist 3">
           <span class="song-num">03</span>
-          <span class="song-name">Song 3</span>
+          <span class="song-name">Rising</span>
           <span class="song-artist">Artist 3</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song4.mp3" data-name="Song 4" data-artist="Artist 4">
+        <div class="song-item" data-src="Tulvan.mp3" data-name="Song 4" data-artist="Artist 4">
           <span class="song-num">04</span>
-          <span class="song-name">Song 4</span>
+          <span class="song-name">Tulvan</span>
           <span class="song-artist">Artist 4</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song5.mp3" data-name="Song 5" data-artist="Artist 5">
+        <div class="song-item" data-src="Ways_Means.mp3" data-name="Song 5" data-artist="Artist 5">
           <span class="song-num">05</span>
-          <span class="song-name">Song 5</span>
+          <span class="song-name">Ways_Means</span>
           <span class="song-artist">Artist 5</span>
           <span class="song-status">—</span>
         </div>
@@ -535,15 +390,11 @@
 
     <div class="or-divider">O</div>
 
-    <!-- YouTube URL -->
-    <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:480px;align-items:center">
-      <div class="song-section-title" style="align-self:flex-start">Video de YouTube</div>
-      <div class="yt-input-wrap">
-        <input class="yt-input" type="text" id="yt-url-input"
-          placeholder="https://www.youtube.com/watch?v=...">
-        <button class="yt-load-btn" id="yt-load-btn">▶ CARGAR</button>
-      </div>
-      <div class="yt-status" id="yt-status">El video se reproduce de fondo sin audio del juego</div>
+    <!-- Manual upload -->
+    <div class="file-drop" id="drop-zone" style="max-width:480px;width:100%">
+      <div id="drop-label">🎵 Arrastra tu MP3 aquí</div>
+      <div style="font-size:11px;margin-top:8px;opacity:0.5">o haz clic para seleccionar</div>
+      <input type="file" id="file-input" accept="audio/*">
     </div>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
@@ -618,15 +469,9 @@ let spawnTimer = 0;
 let lastTime = 0;
 let rotation = 0;
 let fftData, bassEnergy = 0, midEnergy = 0, trebleEnergy = 0;
-let difficulty = 0;
+let difficulty = 0; // 0-1 ramps up over time
 let noteId = 0;
 let keysDown = {};
-
-// YouTube state
-let ytVideoId      = null;
-let ytReady        = false;
-let ytVideoStarted = false;  // true once the actual video starts (past ads)
-let audioMode      = 'song';
 
 // visual
 let bloomIntensity = 0;
@@ -699,10 +544,11 @@ function drawBgWaves(dt) {
   bgTime += dt;
   bctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
 
-  // In YouTube mode skip the corner glow pools (they'd block the video)
   const w = bgCanvas.width, h = bgCanvas.height;
   const cx = w / 2, cy = h / 2;
+  // Safe zone: the orbit track + a comfortable margin — waves fade here
   const safeR = getTrackRadius() * 1.18;
+
   const energyByBand = [bassEnergy, midEnergy, trebleEnergy];
 
   for (const wave of waves) {
@@ -741,18 +587,18 @@ function drawBgWaves(dt) {
     bctx.shadowBlur = 0;
   }
 
-  // Corner glow pools — only in song mode (would block video otherwise)
-  if (audioMode !== 'youtube') {
-    const corners = [[0, 0], [w, 0], [0, h], [w, h]];
-    for (const [cx2, cy2] of corners) {
-      const poolR = w * 0.35 * (0.6 + bassEnergy * 0.5);
-      const grad = bctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, poolR);
-      grad.addColorStop(0, `rgba(0,180,255,${bassEnergy * 0.06 + midEnergy * 0.03})`);
-      grad.addColorStop(0.5, `rgba(120,0,255,${bassEnergy * 0.03})`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      bctx.fillStyle = grad;
-      bctx.fillRect(cx2 === 0 ? 0 : w - poolR, cy2 === 0 ? 0 : h - poolR, poolR, poolR);
-    }
+  // Corner glow pools that breathe with bass
+  const corners = [
+    [0, 0], [w, 0], [0, h], [w, h],
+  ];
+  for (const [cx2, cy2] of corners) {
+    const poolR = w * 0.35 * (0.6 + bassEnergy * 0.5);
+    const grad = bctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, poolR);
+    grad.addColorStop(0, `rgba(0,180,255,${bassEnergy * 0.06 + midEnergy * 0.03})`);
+    grad.addColorStop(0.5, `rgba(120,0,255,${bassEnergy * 0.03})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    bctx.fillStyle = grad;
+    bctx.fillRect(cx2 === 0 ? 0 : w - poolR, cy2 === 0 ? 0 : h - poolR, poolR, poolR);
   }
 }
 
@@ -766,26 +612,7 @@ function startAudio() {
 }
 
 function analyzeAudio() {
-  if (!analyser) {
-    // ── YouTube / no-audio mode: synthetic energies so visuals still animate
-    const t = performance.now() * 0.001;
-    bassEnergy   = Math.max(0, Math.min(1, 0.35 + Math.sin(t * 1.1) * 0.25 + Math.sin(t * 0.43) * 0.10));
-    midEnergy    = Math.max(0, Math.min(1, 0.28 + Math.sin(t * 1.7 + 1.0) * 0.20 + Math.sin(t * 0.9) * 0.08));
-    trebleEnergy = Math.max(0, Math.min(1, 0.20 + Math.sin(t * 2.3 + 2.1) * 0.15));
-    bloomIntensity = bassEnergy * 0.8 + midEnergy * 0.2;
-    const targetFrac = 0.08 + bassEnergy * 0.10 + midEnergy * 0.04 + trebleEnergy * 0.025;
-    dynamicImpRFrac += (targetFrac - dynamicImpRFrac) * 0.08;
-    // Synthetic freq groups for rotation
-    const gA = Math.max(0, 0.3 + Math.sin(t * 0.8)  * 0.3);
-    const gB = Math.max(0, 0.3 + Math.sin(t * 1.2 + 1.5) * 0.3);
-    const gC = Math.max(0, 0.25 + Math.sin(t * 0.6 + 0.8) * 0.2);
-    const gD = Math.max(0, 0.25 + Math.sin(t * 1.5 + 2.5) * 0.2);
-    const THR_A = 0.30, THR_B = 0.22, THR_C = 0.25, THR_D = 0.18;
-    freqDelta = ((gA > THR_A ? (gA - THR_A) * 2.0 : 0) + (gC > THR_C ? (gC - THR_C) * 1.2 : 0))
-              - ((gB > THR_B ? (gB - THR_B) * 1.6 : 0) + (gD > THR_D ? (gD - THR_D) * 1.0 : 0));
-    return;
-  }
-
+  if (!analyser) return;
   analyser.getByteFrequencyData(fftData);
   const len = fftData.length;
   let bass = 0, mid = 0, treble = 0;
@@ -797,30 +624,54 @@ function analyzeAudio() {
   const newMid    = Math.min(1, mid    / (54 * 180));
   const newTreble = Math.min(1, treble / (90 * 160));
 
+  // ── Frequency groups → rotation direction via thresholds
+  // Group A (sub-bass 0-5, bass 6-15)   → gira a la DERECHA cuando supera umbral
+  // Group B (mid-low 16-40)             → gira a la IZQUIERDA cuando supera umbral
+  // Group C (mid-high 41-80)            → gira a la DERECHA (refuerzo) cuando supera umbral
+  // Group D (presence 81-130, air 131+) → gira a la IZQUIERDA cuando supera umbral
+  // El grupo con mayor energía por encima de su umbral gana y dicta la dirección.
+  // Si ninguno supera su umbral el disco decelera hacia cero.
+
   let groupA = 0, groupB = 0, groupC = 0, groupD = 0;
   for (let i = 0; i <= 15; i++) groupA += fftData[i];
   for (let i = 16; i <= 40; i++) groupB += fftData[i];
   for (let i = 41; i <= 80; i++) groupC += fftData[i];
   for (let i = 81; i < Math.min(fftData.length, 180); i++) groupD += fftData[i];
 
+  // Normalize to 0-1
   groupA = Math.min(1, groupA / (16  * 220));
   groupB = Math.min(1, groupB / (25  * 190));
   groupC = Math.min(1, groupC / (40  * 170));
   groupD = Math.min(1, groupD / (99  * 150));
 
+  // Thresholds — groups only "vote" when above their own threshold
   const THR_A = 0.30, THR_B = 0.22, THR_C = 0.25, THR_D = 0.18;
+
   const voteRight = (groupA > THR_A ? (groupA - THR_A) * 2.0 : 0)
                   + (groupC > THR_C ? (groupC - THR_C) * 1.2 : 0);
   const voteLeft  = (groupB > THR_B ? (groupB - THR_B) * 1.6 : 0)
                   + (groupD > THR_D ? (groupD - THR_D) * 1.0 : 0);
+
+  // Signed net force: positive = right, negative = left
   freqDelta = voteRight - voteLeft;
 
-  prevBassEnergy = newBass; prevMidEnergy = newMid; prevTrebleEnergy = newTreble;
-  bassEnergy = newBass; midEnergy = newMid; trebleEnergy = newTreble;
+  prevBassEnergy   = newBass;
+  prevMidEnergy    = newMid;
+  prevTrebleEnergy = newTreble;
+
+  bassEnergy   = newBass;
+  midEnergy    = newMid;
+  trebleEnergy = newTreble;
   bloomIntensity = bassEnergy * 0.8 + midEnergy * 0.2;
 
-  const targetFrac = 0.08 + bassEnergy * 0.10 + midEnergy * 0.04 + trebleEnergy * 0.025;
-  const attack = bassEnergy > dynamicImpRFrac / 0.22 ? 0.18 : 0.06;
+  // ── Dynamic inner circle: driven by full-spectrum energy
+  // Bass → size, treble → pulse sharpness
+  const targetFrac = 0.08
+    + bassEnergy   * 0.10   // bass pumps it big
+    + midEnergy    * 0.04   // mids add medium swell
+    + trebleEnergy * 0.025; // treble adds quick spikes
+  // Smooth with different attack/release speeds
+  const attack  = bassEnergy > dynamicImpRFrac / 0.22 ? 0.18 : 0.06;
   dynamicImpRFrac += (targetFrac - dynamicImpRFrac) * attack;
 }
 
@@ -965,31 +816,20 @@ function updateParticles() {
 // ─── DRAWING ─────────────────────────────────────────────────────────────────
 function drawBackground() {
   const cx = canvas.width / 2, cy = canvas.height / 2;
+  ctx.fillStyle = '#03020a';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  if (audioMode === 'youtube') {
-    // Clear to transparent — YouTube video shows through from below
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Draw a very subtle dark vignette only (not full fill) so game elements read clearly
-    const vignette = ctx.createRadialGradient(cx, cy, getTrackRadius() * 0.4, cx, cy, canvas.width * 0.8);
-    vignette.addColorStop(0, 'rgba(3,2,10,0.55)');
-    vignette.addColorStop(1, 'rgba(3,2,10,0.0)');
-    ctx.fillStyle = vignette;
+  // Ambient glow from bass
+  if (bassEnergy > 0.1) {
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, canvas.width * 0.7);
+    grad.addColorStop(0, `rgba(0,255,136,${bassEnergy * 0.08})`);
+    grad.addColorStop(0.5, `rgba(0,100,255,${midEnergy * 0.05})`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  } else {
-    ctx.fillStyle = '#03020a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Ambient glow from bass
-    if (bassEnergy > 0.1) {
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, canvas.width * 0.7);
-      grad.addColorStop(0, `rgba(0,255,136,${bassEnergy * 0.08})`);
-      grad.addColorStop(0.5, `rgba(0,100,255,${midEnergy * 0.05})`);
-      grad.addColorStop(1, 'rgba(0,0,0,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
   }
 
-  // Grid lines — subtle, always drawn
+  // Grid lines - subtle
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
   ctx.lineWidth = 1;
   const spacing = 60;
@@ -1255,30 +1095,26 @@ function gameLoop(timestamp) {
   const elapsed = (timestamp - gameStartTime) / 1000;
   difficulty = Math.min(1, elapsed / 120);
 
-  // ── Spawn notes — in YouTube mode wait until actual video starts (past ads)
-  const canSpawn = audioMode !== 'youtube' || ytVideoStarted;
+  // ── Spawn notes driven by frequency energy × difficulty preset
+  const preset = DIFF_PRESETS[selectedDifficulty];
+  const specEnergy = bassEnergy * 0.4 + midEnergy * 0.35 + trebleEnergy * 0.25;
+  const targetCount = Math.round(specEnergy * LANE_COUNT * preset.countMult * (1 + difficulty * 0.4));
 
-  if (canSpawn) {
-    const preset = DIFF_PRESETS[selectedDifficulty];
-    const specEnergy = bassEnergy * 0.4 + midEnergy * 0.35 + trebleEnergy * 0.25;
-    const targetCount = Math.round(specEnergy * LANE_COUNT * preset.countMult * (1 + difficulty * 0.4));
+  spawnTimer += dt;
+  const activeCount = notes.filter(n => n.active).length;
 
-    spawnTimer += dt;
-    const activeCount = notes.filter(n => n.active).length;
-
-    if (spawnTimer >= preset.minInterval && activeCount < targetCount) {
-      spawnTimer = 0;
-      const toSpawn = Math.min(3, targetCount - activeCount);
-      const usedLanes = new Set(notes.filter(n => n.active).map(n => n.lane));
-      let spawned = 0, attempts = 0;
-      while (spawned < toSpawn && attempts < 20) {
-        attempts++;
-        const lane = Math.floor(Math.random() * LANE_COUNT);
-        if (!usedLanes.has(lane)) {
-          spawnNote(lane);
-          usedLanes.add(lane);
-          spawned++;
-        }
+  if (spawnTimer >= preset.minInterval && activeCount < targetCount) {
+    spawnTimer = 0;
+    const toSpawn = Math.min(3, targetCount - activeCount);
+    const usedLanes = new Set(notes.filter(n => n.active).map(n => n.lane));
+    let spawned = 0, attempts = 0;
+    while (spawned < toSpawn && attempts < 20) {
+      attempts++;
+      const lane = Math.floor(Math.random() * LANE_COUNT);
+      if (!usedLanes.has(lane)) {
+        spawnNote(lane);
+        usedLanes.add(lane);
+        spawned++;
       }
     }
   }
@@ -1298,89 +1134,6 @@ function gameLoop(timestamp) {
   animFrameId = requestAnimationFrame(gameLoop);
 }
 
-// ─── YOUTUBE PLAYER API ───────────────────────────────────────────────────────
-window.onYouTubeIframeAPIReady = function() { window._ytApiReady = true; };
-
-function videoStarted() {
-  ytVideoStarted = true;
-  const container = document.getElementById('yt-container');
-  container.classList.remove('ad-mode');
-  document.getElementById('ad-overlay').classList.remove('visible');
-  // Lock out pointer-events so game keys work
-  const iframe = container.querySelector('iframe');
-  if (iframe) iframe.style.pointerEvents = 'none';
-}
-
-function launchYTPlayer(videoId) {
-  try { if (window._ytPlayer) { window._ytPlayer.destroy(); window._ytPlayer = null; } } catch(e) {}
-  // Reset the div so the API can inject a fresh iframe
-  document.getElementById('yt-player').innerHTML = '';
-
-  const container  = document.getElementById('yt-container');
-  const adOverlay  = document.getElementById('ad-overlay');
-
-  // Start in ad-mode: iframe is clickable so user can hit Skip
-  container.classList.add('ad-mode');
-  adOverlay.classList.add('visible');
-  ytVideoStarted = false;
-
-  const create = () => {
-    window._ytPlayer = new YT.Player('yt-player', {
-      videoId,
-      playerVars: {
-        autoplay:       1,
-        controls:       1,   // show controls so user can skip ad
-        rel:            0,
-        modestbranding: 1,
-        iv_load_policy: 3,
-        fs:             0,
-      },
-      events: {
-        onReady(e)       { e.target.playVideo(); },
-        onStateChange(e) {
-          // State 1 = PLAYING. We can't distinguish ad vs video reliably,
-          // so we track play count: first PLAYING = likely ad, second = likely video.
-          // The manual button is the reliable fallback.
-          if (e.data === YT.PlayerState.ENDED) endGame();
-          // Auto-detect: if video has been playing >8s and ytVideoStarted is still false,
-          // assume ad was skipped and real video started
-        },
-      },
-    });
-
-    // Poll: if video has been playing for 8+ seconds and not yet confirmed,
-    // assume ad ended (handles cases where no skip button exists or ad was short)
-    let firstPlayTime = null;
-    const adPoll = setInterval(() => {
-      if (!gameRunning) { clearInterval(adPoll); return; }
-      if (ytVideoStarted)  { clearInterval(adPoll); return; }
-      const player = window._ytPlayer;
-      if (!player || typeof player.getPlayerState !== 'function') return;
-      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-        if (!firstPlayTime) firstPlayTime = Date.now();
-        // After 30s of continuous play, assume it's the real video
-        if (Date.now() - firstPlayTime > 30000) {
-          clearInterval(adPoll);
-          videoStarted();
-        }
-      } else {
-        firstPlayTime = null; // reset if paused/buffering
-      }
-    }, 500);
-  };
-
-  if (typeof YT !== 'undefined' && YT.Player) {
-    create();
-  } else {
-    const poll = setInterval(() => {
-      if (typeof YT !== 'undefined' && YT.Player) { clearInterval(poll); create(); }
-    }, 100);
-  }
-}
-
-// Manual "already started" button
-document.getElementById('ad-start-btn').addEventListener('click', videoStarted);
-
 // ─── GAME FLOW ────────────────────────────────────────────────────────────────
 function startGame() {
   score = 0; combo = 0; maxCombo = 0; multiplier = 1;
@@ -1396,44 +1149,22 @@ function startGame() {
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('over-screen').classList.add('hidden');
 
+  // Update in-game difficulty badge
   const preset = DIFF_PRESETS[selectedDifficulty];
   const badge = document.getElementById('diff-badge');
   badge.textContent = preset.label;
   badge.style.color = preset.color;
 
-  if (audioMode === 'youtube') {
-    analyser = null; audioBuffer = null;
-    const ytContainer = document.getElementById('yt-container');
-    if (ytReady) {
-      ytContainer.classList.add('active');
-      ytVideoStarted = false;
-      launchYTPlayer(ytVideoId);
-    }
-    gameRunning = true;
-    gameStartTime = performance.now();
-    lastTime = gameStartTime;
-    animFrameId = requestAnimationFrame(gameLoop);
-  } else {
-    // Normal MP3 mode
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    startAudio();
-    gameRunning = true;
-    gameStartTime = performance.now();
-    lastTime = gameStartTime;
-    animFrameId = requestAnimationFrame(gameLoop);
-  }
+  startAudio();
+  gameRunning = true;
+  gameStartTime = performance.now();
+  lastTime = gameStartTime;
+  animFrameId = requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
   gameRunning = false;
   cancelAnimationFrame(animFrameId);
-
-  if (audioMode === 'youtube') {
-    try { if (window._ytPlayer) { window._ytPlayer.stopVideo(); window._ytPlayer.destroy(); window._ytPlayer = null; } } catch(e) {}
-    document.getElementById('yt-container').classList.remove('active', 'ad-mode');
-    document.getElementById('ad-overlay').classList.remove('visible');
-    document.getElementById('yt-player').innerHTML = '';
-  }
 
   document.getElementById('result-score').textContent = score.toLocaleString();
   document.getElementById('r-perfect').textContent = stats.perfect;
@@ -1445,7 +1176,6 @@ function endGame() {
 
 // ─── INPUT ────────────────────────────────────────────────────────────────────
 window.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && gameRunning) { endGame(); return; }
   if (!gameRunning) return;
   if (keysDown[e.key]) return;
   keysDown[e.key] = true;
@@ -1469,7 +1199,9 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 });
 
 // ─── SONG LIST + FILE HANDLING ───────────────────────────────────────────────
-const startBtn = document.getElementById('start-btn');
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const startBtn  = document.getElementById('start-btn');
 
 function enableStart() {
   startBtn.style.opacity = '1';
@@ -1490,98 +1222,72 @@ async function loadAudioUrl(url, statusEl) {
     analyser.fftSize = 512;
     fftData = new Uint8Array(analyser.frequencyBinCount);
     if (statusEl) statusEl.textContent = '✓';
-    audioMode = 'song';
   } catch(e) {
     if (statusEl) statusEl.textContent = 'ERR';
     console.warn('Could not load preset song:', url, e);
   }
 }
 
+// Load audio from a File object (manual upload)
+async function loadAudioFile(file) {
+  if (audioCtx) audioCtx.close();
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await file.arrayBuffer();
+  audioBuffer = await audioCtx.decodeAudioData(buf);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  fftData = new Uint8Array(analyser.frequencyBinCount);
+}
+
 // Song list interaction
 document.querySelectorAll('.song-item').forEach(item => {
   item.addEventListener('click', async () => {
+    // deselect all
     document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
-    // clear YouTube selection
-    document.getElementById('yt-url-input').value = '';
-    document.getElementById('yt-status').textContent = 'El video se reproduce de fondo sin audio del juego';
-    document.getElementById('yt-status').className = 'yt-status';
-    ytReady = false; ytVideoId = null;
+    // reset upload zone
+    document.getElementById('drop-label').textContent = '🎵 Arrastra tu MP3 aquí';
+    dropZone.classList.remove('active');
 
     item.classList.add('selected', 'loading');
     const statusEl = item.querySelector('.song-status');
-    await loadAudioUrl(item.dataset.src, statusEl);
+    const src = item.dataset.src;
+    await loadAudioUrl(src, statusEl);
     item.classList.remove('loading');
     enableStart();
   });
 });
 
-// ── YouTube URL handling
-function extractYouTubeId(url) {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
-  }
-  return null;
+// Manual upload
+async function handleFile(file) {
+  if (!file || !file.type.startsWith('audio')) return;
+  // deselect preset songs
+  document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
+  dropZone.classList.add('active');
+  document.getElementById('drop-label').textContent = '✅ ' + file.name;
+  await loadAudioFile(file);
+  enableStart();
 }
 
-document.getElementById('yt-load-btn').addEventListener('click', () => {
-  const raw = document.getElementById('yt-url-input').value.trim();
-  const statusEl = document.getElementById('yt-status');
-  const id = extractYouTubeId(raw);
-  if (!id) {
-    statusEl.textContent = '✕ URL inválida — usa un link de YouTube';
-    statusEl.className = 'yt-status err';
-    return;
-  }
-  // Deselect song list
-  document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
-  // Clear any loaded audio
-  if (audioCtx) { audioCtx.close(); audioCtx = null; }
-  audioBuffer = null; analyser = null; fftData = null;
-
-  ytVideoId = id;
-  ytReady   = true;
-  audioMode = 'youtube';
-
-  statusEl.innerHTML = `✓ Video listo · <span style="opacity:.5;font-size:10px">${id}</span>`;
-  statusEl.className = 'yt-status ok';
-
-  // Show thumbnail preview (no iframe needed yet — avoids autoplay issues)
-  const playerDiv = document.getElementById('yt-player');
-  playerDiv.innerHTML = `<img src="https://img.youtube.com/vi/${id}/maxresdefault.jpg"
-    onerror="this.src='https://img.youtube.com/vi/${id}/hqdefault.jpg'"
-    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">`;
-  document.getElementById('yt-container').classList.add('active');
-  enableStart();
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+dropZone.addEventListener('dragleave', () => {
+  if (!document.getElementById('drop-label').textContent.startsWith('✅'))
+    dropZone.classList.remove('active');
 });
-
-// Allow pressing Enter in input
-document.getElementById('yt-url-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('yt-load-btn').click();
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  handleFile(e.dataTransfer.files[0]);
 });
 
 startBtn.addEventListener('click', () => {
-  if (audioMode === 'song' && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   startGame();
 });
 
 document.getElementById('retry-btn').addEventListener('click', () => {
   document.getElementById('over-screen').classList.add('hidden');
   document.getElementById('start-screen').classList.remove('hidden');
-  ytVideoStarted = false;
-  if (ytReady && audioMode === 'youtube') {
-    const playerDiv = document.getElementById('yt-player');
-    playerDiv.innerHTML = `<img src="https://img.youtube.com/vi/${ytVideoId}/maxresdefault.jpg"
-      onerror="this.src='https://img.youtube.com/vi/${ytVideoId}/hqdefault.jpg'"
-      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">`;
-    document.getElementById('yt-container').classList.add('active');
-    document.getElementById('yt-container').classList.remove('ad-mode');
-    document.getElementById('ad-overlay').classList.remove('visible');
-  }
 });
 
 // Initial draw (static)
