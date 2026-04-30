@@ -210,72 +210,96 @@
   #yt-container {
     position: absolute;
     inset: 0;
-    z-index: 1;           /* above body but below canvases */
+    z-index: 1;
     pointer-events: none;
     overflow: hidden;
     display: none;
   }
   #yt-container.active { display: block; }
-  #yt-iframe {
+
+  /* The div YT API replaces with an iframe — must fill screen */
+  #yt-player {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 177.78vh;
-    height: 100vh;
-    min-width: 100vw;
-    min-height: 56.25vw;
-    opacity: 0.55;
+    /* Cover full screen regardless of 16:9 vs viewport ratio */
+    width: max(100vw, 177.78vh);
+    height: max(100vh, 56.25vw);
+    opacity: 0.5;
+  }
+  /* The iframe YouTube API injects */
+  #yt-player iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
   }
-  /* Radial mask: darken center so video doesn't bleed into orbit zone */
+  /* Allow clicks through to iframe when ads are playing */
+  #yt-container.ad-mode #yt-player,
+  #yt-container.ad-mode #yt-player iframe {
+    pointer-events: auto;
+  }
+
+  /* Radial mask: darken center so orbit is readable over video */
   #yt-mask {
     position: absolute;
     inset: 0;
     z-index: 2;
     pointer-events: none;
     background: radial-gradient(
-      ellipse 46% 46% at 50% 50%,
-      rgba(3,2,10,0.96) 0%,
-      rgba(3,2,10,0.85) 32%,
-      rgba(3,2,10,0.50) 52%,
+      ellipse 44% 44% at 50% 50%,
+      rgba(3,2,10,0.94) 0%,
+      rgba(3,2,10,0.80) 30%,
+      rgba(3,2,10,0.40) 52%,
       rgba(3,2,10,0.0)  68%
     );
   }
 
-  /* Ad overlay — shown during pre-roll ads */
+  /* Ad banner + manual "start" button */
   #ad-overlay {
     position: absolute;
     inset: 0;
-    z-index: 10;
+    z-index: 20;
     display: none;
-    align-items: flex-end;
-    justify-content: center;
-    padding-bottom: 32px;
-    pointer-events: none;   /* transparent by default — clicks pass to iframe below */
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    padding-bottom: 36px;
+    gap: 12px;
+    pointer-events: none;
   }
   #ad-overlay.visible { display: flex; }
   #ad-msg {
     font-family: 'Orbitron', monospace;
     font-size: 11px;
     letter-spacing: 3px;
-    color: rgba(255,200,0,0.85);
+    color: rgba(255,200,0,0.9);
     text-shadow: 0 0 12px rgba(255,180,0,0.5);
-    background: rgba(3,2,10,0.7);
-    padding: 8px 20px;
-    border: 1px solid rgba(255,200,0,0.25);
+    background: rgba(3,2,10,0.75);
+    padding: 7px 20px;
+    border: 1px solid rgba(255,200,0,0.3);
     animation: adPulse 1.5s ease-in-out infinite;
+    pointer-events: none;
   }
+  #ad-start-btn {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 11px 28px;
+    background: rgba(0,255,136,0.12);
+    border: 1.5px solid #00ff88;
+    color: #00ff88;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.2s;
+    box-shadow: 0 0 20px rgba(0,255,136,0.2);
+  }
+  #ad-start-btn:hover { background: rgba(0,255,136,0.25); box-shadow: 0 0 30px rgba(0,255,136,0.4); }
   @keyframes adPulse {
     0%,100% { opacity: 0.7; }
     50%      { opacity: 1.0; }
-  }
-
-  /* During ads: iframe needs pointer-events so user can click Skip */
-  #yt-container.ad-mode #yt-player iframe {
-    pointer-events: auto !important;
-  }
-  #yt-container.ad-mode #yt-mask {
-    pointer-events: none;
   }
   .yt-input-wrap {
     display: flex; gap: 0;
@@ -440,9 +464,9 @@
   <div id="yt-container">
     <div id="yt-player"></div>
     <div id="yt-mask"></div>
-    <!-- Ad overlay: shown during ads so user can click Skip -->
     <div id="ad-overlay">
-      <div id="ad-msg">⏩ Publicidad — haz clic en "Saltar" en el video</div>
+      <div id="ad-msg">⏩ Publicidad reproduciéndose — puedes hacer clic en "Saltar"</div>
+      <button id="ad-start-btn">▶ Ya empezó el video</button>
     </div>
   </div>
 
@@ -1275,18 +1299,27 @@ function gameLoop(timestamp) {
 }
 
 // ─── YOUTUBE PLAYER API ───────────────────────────────────────────────────────
-// Called by YouTube API once the script loads
-window.onYouTubeIframeAPIReady = function() {
-  window._ytApiReady = true;
-};
+window.onYouTubeIframeAPIReady = function() { window._ytApiReady = true; };
+
+function videoStarted() {
+  ytVideoStarted = true;
+  const container = document.getElementById('yt-container');
+  container.classList.remove('ad-mode');
+  document.getElementById('ad-overlay').classList.remove('visible');
+  // Lock out pointer-events so game keys work
+  const iframe = container.querySelector('iframe');
+  if (iframe) iframe.style.pointerEvents = 'none';
+}
 
 function launchYTPlayer(videoId) {
-  // Destroy previous instance if any
   try { if (window._ytPlayer) { window._ytPlayer.destroy(); window._ytPlayer = null; } } catch(e) {}
+  // Reset the div so the API can inject a fresh iframe
+  document.getElementById('yt-player').innerHTML = '';
 
-  const container = document.getElementById('yt-container');
-  const adOverlay = document.getElementById('ad-overlay');
-  // Enter ad mode immediately (assume ad will play first)
+  const container  = document.getElementById('yt-container');
+  const adOverlay  = document.getElementById('ad-overlay');
+
+  // Start in ad-mode: iframe is clickable so user can hit Skip
   container.classList.add('ad-mode');
   adOverlay.classList.add('visible');
   ytVideoStarted = false;
@@ -1295,80 +1328,58 @@ function launchYTPlayer(videoId) {
     window._ytPlayer = new YT.Player('yt-player', {
       videoId,
       playerVars: {
-        autoplay: 1,
-        controls: 1,        // keep controls visible so user can skip ads
-        rel: 0,
+        autoplay:       1,
+        controls:       1,   // show controls so user can skip ad
+        rel:            0,
         modestbranding: 1,
         iv_load_policy: 3,
+        fs:             0,
       },
       events: {
-        onReady(e) { e.target.playVideo(); },
+        onReady(e)       { e.target.playVideo(); },
         onStateChange(e) {
-          const s = e.data;
-          // YT.PlayerState: -1=unstarted, 0=ended, 1=playing, 2=paused, 3=buffering, 5=cued
-          // AD_PLAYING state is also 1, but ads fire a separate onAdStateChange.
-          // We detect "real video started" via the ad API if available, or via
-          // checking getVideoLoadedFraction() > 0 while playing.
-          if (s === YT.PlayerState.PLAYING) {
-            // Check if this is a real video play (not an ad)
-            const player = e.target;
-            const isAd = typeof player.getAdState === 'function'
-              ? player.getAdState() !== -1    // -1 means no ad
-              : false;
-
-            if (!isAd && !ytVideoStarted) {
-              ytVideoStarted = true;
-              container.classList.remove('ad-mode');
-              adOverlay.classList.remove('visible');
-              // Reduce controls back to minimal now that ad is gone
-              // (can't change playerVars after init, but we can hide controls via CSS)
-              const iframe = container.querySelector('iframe');
-              if (iframe) iframe.style.pointerEvents = 'none';
-            }
-          }
-          // While ad-mode: keep pointer-events on so user can click Skip
-          if (!ytVideoStarted) {
-            const iframe = container.querySelector('iframe');
-            if (iframe) iframe.style.pointerEvents = 'auto';
-          }
-          if (s === YT.PlayerState.ENDED) endGame();
-        },
-        onAdStateChange(e) {
-          // AD_PLAYING = 1, AD_FINISHED = -1
-          const container = document.getElementById('yt-container');
-          const adOverlay = document.getElementById('ad-overlay');
-          const iframe    = container.querySelector('iframe');
-          if (e.data === 1) {
-            // Ad is playing — allow clicks to reach iframe (for Skip button)
-            container.classList.add('ad-mode');
-            adOverlay.classList.add('visible');
-            if (iframe) iframe.style.pointerEvents = 'auto';
-          } else {
-            // Ad ended — disable pointer-events, start spawning notes
-            container.classList.remove('ad-mode');
-            adOverlay.classList.remove('visible');
-            if (iframe) iframe.style.pointerEvents = 'none';
-            if (!ytVideoStarted) {
-              ytVideoStarted = true;
-            }
-          }
+          // State 1 = PLAYING. We can't distinguish ad vs video reliably,
+          // so we track play count: first PLAYING = likely ad, second = likely video.
+          // The manual button is the reliable fallback.
+          if (e.data === YT.PlayerState.ENDED) endGame();
+          // Auto-detect: if video has been playing >8s and ytVideoStarted is still false,
+          // assume ad was skipped and real video started
         },
       },
     });
+
+    // Poll: if video has been playing for 8+ seconds and not yet confirmed,
+    // assume ad ended (handles cases where no skip button exists or ad was short)
+    let firstPlayTime = null;
+    const adPoll = setInterval(() => {
+      if (!gameRunning) { clearInterval(adPoll); return; }
+      if (ytVideoStarted)  { clearInterval(adPoll); return; }
+      const player = window._ytPlayer;
+      if (!player || typeof player.getPlayerState !== 'function') return;
+      if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+        if (!firstPlayTime) firstPlayTime = Date.now();
+        // After 30s of continuous play, assume it's the real video
+        if (Date.now() - firstPlayTime > 30000) {
+          clearInterval(adPoll);
+          videoStarted();
+        }
+      } else {
+        firstPlayTime = null; // reset if paused/buffering
+      }
+    }, 500);
   };
 
-  if (window._ytApiReady || typeof YT !== 'undefined') {
+  if (typeof YT !== 'undefined' && YT.Player) {
     create();
   } else {
-    // API not loaded yet — wait
     const poll = setInterval(() => {
-      if (typeof YT !== 'undefined' && YT.Player) {
-        clearInterval(poll);
-        create();
-      }
+      if (typeof YT !== 'undefined' && YT.Player) { clearInterval(poll); create(); }
     }, 100);
   }
 }
+
+// Manual "already started" button
+document.getElementById('ad-start-btn').addEventListener('click', videoStarted);
 
 // ─── GAME FLOW ────────────────────────────────────────────────────────────────
 function startGame() {
@@ -1538,11 +1549,12 @@ document.getElementById('yt-load-btn').addEventListener('click', () => {
 
   statusEl.innerHTML = `✓ Video listo · <span style="opacity:.5;font-size:10px">${id}</span>`;
   statusEl.className = 'yt-status ok';
-  // Preview iframe (muted, no autoplay yet) — just show thumbnail via embed
+
+  // Show thumbnail preview (no iframe needed yet — avoids autoplay issues)
   const playerDiv = document.getElementById('yt-player');
-  playerDiv.innerHTML = `<iframe style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;opacity:0.55;"
-    src="https://www.youtube.com/embed/${id}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1"
-    frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+  playerDiv.innerHTML = `<img src="https://img.youtube.com/vi/${id}/maxresdefault.jpg"
+    onerror="this.src='https://img.youtube.com/vi/${id}/hqdefault.jpg'"
+    style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">`;
   document.getElementById('yt-container').classList.add('active');
   enableStart();
 });
@@ -1563,10 +1575,12 @@ document.getElementById('retry-btn').addEventListener('click', () => {
   ytVideoStarted = false;
   if (ytReady && audioMode === 'youtube') {
     const playerDiv = document.getElementById('yt-player');
-    playerDiv.innerHTML = `<iframe style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;height:100vh;min-width:100vw;min-height:56.25vw;pointer-events:none;opacity:0.55;"
-      src="https://www.youtube.com/embed/${ytVideoId}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1"
-      frameborder="0" allow="autoplay; encrypted-media"></iframe>`;
+    playerDiv.innerHTML = `<img src="https://img.youtube.com/vi/${ytVideoId}/maxresdefault.jpg"
+      onerror="this.src='https://img.youtube.com/vi/${ytVideoId}/hqdefault.jpg'"
+      style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.5;">`;
     document.getElementById('yt-container').classList.add('active');
+    document.getElementById('yt-container').classList.remove('ad-mode');
+    document.getElementById('ad-overlay').classList.remove('visible');
   }
 });
 
