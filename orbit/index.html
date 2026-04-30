@@ -40,12 +40,12 @@
     width: 100%; height: 100%;
   }
 
-  /* Background wave canvas — behind everything */
+  /* Background wave canvas — behind game canvas but above YouTube */
   canvas#bg-waves {
     position: absolute;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 0;
+    z-index: 3;
     pointer-events: none;
   }
 
@@ -210,7 +210,7 @@
   #yt-container {
     position: absolute;
     inset: 0;
-    z-index: 0;
+    z-index: 1;           /* above body but below canvases */
     pointer-events: none;
     overflow: hidden;
     display: none;
@@ -220,26 +220,25 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    /* oversized so it covers screen regardless of aspect ratio */
-    width: 177.78vh;   /* 16/9 * 100vh */
+    width: 177.78vh;
     height: 100vh;
     min-width: 100vw;
-    min-height: 56.25vw; /* 9/16 * 100vw */
-    opacity: 0.28;
+    min-height: 56.25vw;
+    opacity: 0.55;
     pointer-events: none;
   }
-  /* Radial mask: darken center (game orbit zone) so video doesn't bleed through */
+  /* Radial mask: darken center so video doesn't bleed into orbit zone */
   #yt-mask {
     position: absolute;
     inset: 0;
-    z-index: 1;
+    z-index: 2;
     pointer-events: none;
     background: radial-gradient(
-      ellipse 52% 52% at 50% 50%,
-      rgba(3,2,10,0.92) 0%,
-      rgba(3,2,10,0.80) 38%,
-      rgba(3,2,10,0.45) 55%,
-      rgba(3,2,10,0.0)  72%
+      ellipse 46% 46% at 50% 50%,
+      rgba(3,2,10,0.96) 0%,
+      rgba(3,2,10,0.85) 32%,
+      rgba(3,2,10,0.50) 52%,
+      rgba(3,2,10,0.0)  68%
     );
   }
 
@@ -410,7 +409,7 @@
   </div>
 
   <canvas id="bg-waves"></canvas>
-  <canvas id="game"></canvas>
+  <canvas id="game" style="position:absolute;top:0;left:0;width:100%;height:100%;z-index:4;"></canvas>
   <canvas id="lane-labels" style="position:absolute;top:0;left:0;pointer-events:none;z-index:5;"></canvas>
 
   <div id="hud">
@@ -637,11 +636,10 @@ function drawBgWaves(dt) {
   bgTime += dt;
   bctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
 
+  // In YouTube mode skip the corner glow pools (they'd block the video)
   const w = bgCanvas.width, h = bgCanvas.height;
   const cx = w / 2, cy = h / 2;
-  // Safe zone: the orbit track + a comfortable margin — waves fade here
   const safeR = getTrackRadius() * 1.18;
-
   const energyByBand = [bassEnergy, midEnergy, trebleEnergy];
 
   for (const wave of waves) {
@@ -680,18 +678,18 @@ function drawBgWaves(dt) {
     bctx.shadowBlur = 0;
   }
 
-  // Corner glow pools that breathe with bass
-  const corners = [
-    [0, 0], [w, 0], [0, h], [w, h],
-  ];
-  for (const [cx2, cy2] of corners) {
-    const poolR = w * 0.35 * (0.6 + bassEnergy * 0.5);
-    const grad = bctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, poolR);
-    grad.addColorStop(0, `rgba(0,180,255,${bassEnergy * 0.06 + midEnergy * 0.03})`);
-    grad.addColorStop(0.5, `rgba(120,0,255,${bassEnergy * 0.03})`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    bctx.fillStyle = grad;
-    bctx.fillRect(cx2 === 0 ? 0 : w - poolR, cy2 === 0 ? 0 : h - poolR, poolR, poolR);
+  // Corner glow pools — only in song mode (would block video otherwise)
+  if (audioMode !== 'youtube') {
+    const corners = [[0, 0], [w, 0], [0, h], [w, h]];
+    for (const [cx2, cy2] of corners) {
+      const poolR = w * 0.35 * (0.6 + bassEnergy * 0.5);
+      const grad = bctx.createRadialGradient(cx2, cy2, 0, cx2, cy2, poolR);
+      grad.addColorStop(0, `rgba(0,180,255,${bassEnergy * 0.06 + midEnergy * 0.03})`);
+      grad.addColorStop(0.5, `rgba(120,0,255,${bassEnergy * 0.03})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      bctx.fillStyle = grad;
+      bctx.fillRect(cx2 === 0 ? 0 : w - poolR, cy2 === 0 ? 0 : h - poolR, poolR, poolR);
+    }
   }
 }
 
@@ -904,20 +902,31 @@ function updateParticles() {
 // ─── DRAWING ─────────────────────────────────────────────────────────────────
 function drawBackground() {
   const cx = canvas.width / 2, cy = canvas.height / 2;
-  ctx.fillStyle = '#03020a';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Ambient glow from bass
-  if (bassEnergy > 0.1) {
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, canvas.width * 0.7);
-    grad.addColorStop(0, `rgba(0,255,136,${bassEnergy * 0.08})`);
-    grad.addColorStop(0.5, `rgba(0,100,255,${midEnergy * 0.05})`);
-    grad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = grad;
+  if (audioMode === 'youtube') {
+    // Clear to transparent — YouTube video shows through from below
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw a very subtle dark vignette only (not full fill) so game elements read clearly
+    const vignette = ctx.createRadialGradient(cx, cy, getTrackRadius() * 0.4, cx, cy, canvas.width * 0.8);
+    vignette.addColorStop(0, 'rgba(3,2,10,0.55)');
+    vignette.addColorStop(1, 'rgba(3,2,10,0.0)');
+    ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.fillStyle = '#03020a';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Ambient glow from bass
+    if (bassEnergy > 0.1) {
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, canvas.width * 0.7);
+      grad.addColorStop(0, `rgba(0,255,136,${bassEnergy * 0.08})`);
+      grad.addColorStop(0.5, `rgba(0,100,255,${midEnergy * 0.05})`);
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
   }
 
-  // Grid lines - subtle
+  // Grid lines — subtle, always drawn
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
   ctx.lineWidth = 1;
   const spacing = 60;
