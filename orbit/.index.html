@@ -206,84 +206,8 @@
     text-transform: uppercase;
   }
 
-  /* YouTube video background */
-  #yt-container {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    overflow: hidden;
-    display: none;
-  }
-  #yt-container.active { display: block; }
-  #yt-iframe {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    /* oversized so it covers screen regardless of aspect ratio */
-    width: 177.78vh;   /* 16/9 * 100vh */
-    height: 100vh;
-    min-width: 100vw;
-    min-height: 56.25vw; /* 9/16 * 100vw */
-    opacity: 0.28;
-    pointer-events: none;
-  }
-  /* Radial mask: darken center (game orbit zone) so video doesn't bleed through */
-  #yt-mask {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse 52% 52% at 50% 50%,
-      rgba(3,2,10,0.92) 0%,
-      rgba(3,2,10,0.80) 38%,
-      rgba(3,2,10,0.45) 55%,
-      rgba(3,2,10,0.0)  72%
-    );
-  }
-
-  /* YouTube URL input */
-  .yt-input-wrap {
-    display: flex; gap: 0;
-    width: 100%; max-width: 480px;
-  }
-  .yt-input {
-    flex: 1;
-    background: rgba(255,255,255,0.04);
-    border: 1.5px solid rgba(255,255,255,0.12);
-    border-right: none;
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 13px;
-    letter-spacing: 1px;
-    padding: 11px 16px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .yt-input::placeholder { color: rgba(255,255,255,0.25); }
-  .yt-input:focus { border-color: rgba(255,51,51,0.6); }
-  .yt-input.valid { border-color: rgba(255,80,80,0.7); background: rgba(255,40,40,0.06); }
-  .yt-load-btn {
-    font-family: 'Orbitron', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    padding: 11px 18px;
-    background: rgba(255,40,40,0.15);
-    border: 1.5px solid rgba(255,80,80,0.4);
-    color: #ff6060;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-  .yt-load-btn:hover { background: rgba(255,40,40,0.3); color: #fff; }
-  .yt-status {
-    font-size: 11px; letter-spacing: 1px;
-    color: var(--dim); text-align: center;
-    min-height: 16px;
-  }
-  .yt-status.ok  { color: #ff6060; }
-  .yt-status.err { color: #ff3366; }
+  /* Lane key labels */
+  #lane-labels {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none;
@@ -401,14 +325,6 @@
 </head>
 <body>
 <div id="app">
-  <!-- YouTube video layer -->
-  <div id="yt-container">
-    <iframe id="yt-iframe" id="yt-player"
-      frameborder="0" allow="autoplay; encrypted-media"
-      allowfullscreen></iframe>
-    <div id="yt-mask"></div>
-  </div>
-
   <canvas id="bg-waves"></canvas>
   <canvas id="game"></canvas>
   <canvas id="lane-labels" style="position:absolute;top:0;left:0;pointer-events:none;z-index:5;"></canvas>
@@ -437,35 +353,35 @@
 
     <!-- Preset song list -->
     <div class="song-section">
-      <div class="song-section-title">Canciones</div>
+      <div class="song-section-title">Songs</div>
       <div class="song-list" id="song-list">
-        <div class="song-item" data-src="song1.mp3" data-name="Song 1" data-artist="Artist 1">
+        <div class="song-item" data-src="210000_leguas.mp3" data-name="Song 1" data-artist="Artist 1">
           <span class="song-num">01</span>
-          <span class="song-name">Song 1</span>
+          <span class="song-name">210.000 Leguas</span>
           <span class="song-artist">Artist 1</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song2.mp3" data-name="Song 2" data-artist="Artist 2">
+        <div class="song-item" data-src="Jupiter.mp3" data-name="Song 2" data-artist="Artist 2">
           <span class="song-num">02</span>
-          <span class="song-name">Song 2</span>
+          <span class="song-name">Jupyter</span>
           <span class="song-artist">Artist 2</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song3.mp3" data-name="Song 3" data-artist="Artist 3">
+        <div class="song-item" data-src="Rising.mp3" data-name="Song 3" data-artist="Artist 3">
           <span class="song-num">03</span>
-          <span class="song-name">Song 3</span>
+          <span class="song-name">Rising</span>
           <span class="song-artist">Artist 3</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song4.mp3" data-name="Song 4" data-artist="Artist 4">
+        <div class="song-item" data-src="Tulvan.mp3" data-name="Song 4" data-artist="Artist 4">
           <span class="song-num">04</span>
-          <span class="song-name">Song 4</span>
+          <span class="song-name">Tulvan</span>
           <span class="song-artist">Artist 4</span>
           <span class="song-status">—</span>
         </div>
-        <div class="song-item" data-src="song5.mp3" data-name="Song 5" data-artist="Artist 5">
+        <div class="song-item" data-src="Ways_Means.mp3" data-name="Song 5" data-artist="Artist 5">
           <span class="song-num">05</span>
-          <span class="song-name">Song 5</span>
+          <span class="song-name">Ways_Means</span>
           <span class="song-artist">Artist 5</span>
           <span class="song-status">—</span>
         </div>
@@ -474,15 +390,11 @@
 
     <div class="or-divider">O</div>
 
-    <!-- YouTube URL -->
-    <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:480px;align-items:center">
-      <div class="song-section-title" style="align-self:flex-start">Video de YouTube</div>
-      <div class="yt-input-wrap">
-        <input class="yt-input" type="text" id="yt-url-input"
-          placeholder="https://www.youtube.com/watch?v=...">
-        <button class="yt-load-btn" id="yt-load-btn">▶ CARGAR</button>
-      </div>
-      <div class="yt-status" id="yt-status">El video se reproduce de fondo sin audio del juego</div>
+    <!-- Manual upload -->
+    <div class="file-drop" id="drop-zone" style="max-width:480px;width:100%">
+      <div id="drop-label">🎵 Arrastra tu MP3 aquí</div>
+      <div style="font-size:11px;margin-top:8px;opacity:0.5">o haz clic para seleccionar</div>
+      <input type="file" id="file-input" accept="audio/*">
     </div>
 
     <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
@@ -557,14 +469,9 @@ let spawnTimer = 0;
 let lastTime = 0;
 let rotation = 0;
 let fftData, bassEnergy = 0, midEnergy = 0, trebleEnergy = 0;
-let difficulty = 0;
+let difficulty = 0; // 0-1 ramps up over time
 let noteId = 0;
 let keysDown = {};
-
-// YouTube state
-let ytVideoId    = null;   // extracted video ID
-let ytReady      = false;  // true once URL is validated and loaded into iframe
-let audioMode    = 'song'; // 'song' | 'youtube'
 
 // visual
 let bloomIntensity = 0;
@@ -705,26 +612,7 @@ function startAudio() {
 }
 
 function analyzeAudio() {
-  if (!analyser) {
-    // ── YouTube / no-audio mode: synthetic energies so visuals still animate
-    const t = performance.now() * 0.001;
-    bassEnergy   = Math.max(0, Math.min(1, 0.35 + Math.sin(t * 1.1) * 0.25 + Math.sin(t * 0.43) * 0.10));
-    midEnergy    = Math.max(0, Math.min(1, 0.28 + Math.sin(t * 1.7 + 1.0) * 0.20 + Math.sin(t * 0.9) * 0.08));
-    trebleEnergy = Math.max(0, Math.min(1, 0.20 + Math.sin(t * 2.3 + 2.1) * 0.15));
-    bloomIntensity = bassEnergy * 0.8 + midEnergy * 0.2;
-    const targetFrac = 0.08 + bassEnergy * 0.10 + midEnergy * 0.04 + trebleEnergy * 0.025;
-    dynamicImpRFrac += (targetFrac - dynamicImpRFrac) * 0.08;
-    // Synthetic freq groups for rotation
-    const gA = Math.max(0, 0.3 + Math.sin(t * 0.8)  * 0.3);
-    const gB = Math.max(0, 0.3 + Math.sin(t * 1.2 + 1.5) * 0.3);
-    const gC = Math.max(0, 0.25 + Math.sin(t * 0.6 + 0.8) * 0.2);
-    const gD = Math.max(0, 0.25 + Math.sin(t * 1.5 + 2.5) * 0.2);
-    const THR_A = 0.30, THR_B = 0.22, THR_C = 0.25, THR_D = 0.18;
-    freqDelta = ((gA > THR_A ? (gA - THR_A) * 2.0 : 0) + (gC > THR_C ? (gC - THR_C) * 1.2 : 0))
-              - ((gB > THR_B ? (gB - THR_B) * 1.6 : 0) + (gD > THR_D ? (gD - THR_D) * 1.0 : 0));
-    return;
-  }
-
+  if (!analyser) return;
   analyser.getByteFrequencyData(fftData);
   const len = fftData.length;
   let bass = 0, mid = 0, treble = 0;
@@ -736,30 +624,54 @@ function analyzeAudio() {
   const newMid    = Math.min(1, mid    / (54 * 180));
   const newTreble = Math.min(1, treble / (90 * 160));
 
+  // ── Frequency groups → rotation direction via thresholds
+  // Group A (sub-bass 0-5, bass 6-15)   → gira a la DERECHA cuando supera umbral
+  // Group B (mid-low 16-40)             → gira a la IZQUIERDA cuando supera umbral
+  // Group C (mid-high 41-80)            → gira a la DERECHA (refuerzo) cuando supera umbral
+  // Group D (presence 81-130, air 131+) → gira a la IZQUIERDA cuando supera umbral
+  // El grupo con mayor energía por encima de su umbral gana y dicta la dirección.
+  // Si ninguno supera su umbral el disco decelera hacia cero.
+
   let groupA = 0, groupB = 0, groupC = 0, groupD = 0;
   for (let i = 0; i <= 15; i++) groupA += fftData[i];
   for (let i = 16; i <= 40; i++) groupB += fftData[i];
   for (let i = 41; i <= 80; i++) groupC += fftData[i];
   for (let i = 81; i < Math.min(fftData.length, 180); i++) groupD += fftData[i];
 
+  // Normalize to 0-1
   groupA = Math.min(1, groupA / (16  * 220));
   groupB = Math.min(1, groupB / (25  * 190));
   groupC = Math.min(1, groupC / (40  * 170));
   groupD = Math.min(1, groupD / (99  * 150));
 
+  // Thresholds — groups only "vote" when above their own threshold
   const THR_A = 0.30, THR_B = 0.22, THR_C = 0.25, THR_D = 0.18;
+
   const voteRight = (groupA > THR_A ? (groupA - THR_A) * 2.0 : 0)
                   + (groupC > THR_C ? (groupC - THR_C) * 1.2 : 0);
   const voteLeft  = (groupB > THR_B ? (groupB - THR_B) * 1.6 : 0)
                   + (groupD > THR_D ? (groupD - THR_D) * 1.0 : 0);
+
+  // Signed net force: positive = right, negative = left
   freqDelta = voteRight - voteLeft;
 
-  prevBassEnergy = newBass; prevMidEnergy = newMid; prevTrebleEnergy = newTreble;
-  bassEnergy = newBass; midEnergy = newMid; trebleEnergy = newTreble;
+  prevBassEnergy   = newBass;
+  prevMidEnergy    = newMid;
+  prevTrebleEnergy = newTreble;
+
+  bassEnergy   = newBass;
+  midEnergy    = newMid;
+  trebleEnergy = newTreble;
   bloomIntensity = bassEnergy * 0.8 + midEnergy * 0.2;
 
-  const targetFrac = 0.08 + bassEnergy * 0.10 + midEnergy * 0.04 + trebleEnergy * 0.025;
-  const attack = bassEnergy > dynamicImpRFrac / 0.22 ? 0.18 : 0.06;
+  // ── Dynamic inner circle: driven by full-spectrum energy
+  // Bass → size, treble → pulse sharpness
+  const targetFrac = 0.08
+    + bassEnergy   * 0.10   // bass pumps it big
+    + midEnergy    * 0.04   // mids add medium swell
+    + trebleEnergy * 0.025; // treble adds quick spikes
+  // Smooth with different attack/release speeds
+  const attack  = bassEnergy > dynamicImpRFrac / 0.22 ? 0.18 : 0.06;
   dynamicImpRFrac += (targetFrac - dynamicImpRFrac) * attack;
 }
 
@@ -1237,46 +1149,22 @@ function startGame() {
   document.getElementById('start-screen').classList.add('hidden');
   document.getElementById('over-screen').classList.add('hidden');
 
+  // Update in-game difficulty badge
   const preset = DIFF_PRESETS[selectedDifficulty];
   const badge = document.getElementById('diff-badge');
   badge.textContent = preset.label;
   badge.style.color = preset.color;
 
-  if (audioMode === 'youtube') {
-    // No AudioContext — play YouTube iframe and run game with synthetic energies
-    analyser = null;
-    audioBuffer = null;
-    const ytContainer = document.getElementById('yt-container');
-    if (ytReady) {
-      ytContainer.classList.add('active');
-      // Reload iframe with autoplay
-      const iframe = document.getElementById('yt-iframe');
-      iframe.src = `https://www.youtube.com/embed/${ytVideoId}?autoplay=1&mute=0&controls=0&loop=1&playlist=${ytVideoId}&rel=0&modestbranding=1`;
-    }
-    // Game ends manually (no audio onended) — run indefinitely until user exits
-    gameRunning = true;
-    gameStartTime = performance.now();
-    lastTime = gameStartTime;
-    animFrameId = requestAnimationFrame(gameLoop);
-  } else {
-    // Normal MP3 mode
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
-    startAudio();
-    gameRunning = true;
-    gameStartTime = performance.now();
-    lastTime = gameStartTime;
-    animFrameId = requestAnimationFrame(gameLoop);
-  }
+  startAudio();
+  gameRunning = true;
+  gameStartTime = performance.now();
+  lastTime = gameStartTime;
+  animFrameId = requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
   gameRunning = false;
   cancelAnimationFrame(animFrameId);
-
-  // Stop YouTube iframe if active
-  const iframe = document.getElementById('yt-iframe');
-  if (iframe && audioMode === 'youtube') iframe.src = '';
-  document.getElementById('yt-container').classList.remove('active');
 
   document.getElementById('result-score').textContent = score.toLocaleString();
   document.getElementById('r-perfect').textContent = stats.perfect;
@@ -1288,7 +1176,6 @@ function endGame() {
 
 // ─── INPUT ────────────────────────────────────────────────────────────────────
 window.addEventListener('keydown', e => {
-  if (e.key === 'Escape' && gameRunning) { endGame(); return; }
   if (!gameRunning) return;
   if (keysDown[e.key]) return;
   keysDown[e.key] = true;
@@ -1312,7 +1199,9 @@ document.querySelectorAll('.diff-btn').forEach(btn => {
 });
 
 // ─── SONG LIST + FILE HANDLING ───────────────────────────────────────────────
-const startBtn = document.getElementById('start-btn');
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const startBtn  = document.getElementById('start-btn');
 
 function enableStart() {
   startBtn.style.opacity = '1';
@@ -1333,92 +1222,72 @@ async function loadAudioUrl(url, statusEl) {
     analyser.fftSize = 512;
     fftData = new Uint8Array(analyser.frequencyBinCount);
     if (statusEl) statusEl.textContent = '✓';
-    audioMode = 'song';
   } catch(e) {
     if (statusEl) statusEl.textContent = 'ERR';
     console.warn('Could not load preset song:', url, e);
   }
 }
 
+// Load audio from a File object (manual upload)
+async function loadAudioFile(file) {
+  if (audioCtx) audioCtx.close();
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await file.arrayBuffer();
+  audioBuffer = await audioCtx.decodeAudioData(buf);
+  analyser = audioCtx.createAnalyser();
+  analyser.fftSize = 512;
+  fftData = new Uint8Array(analyser.frequencyBinCount);
+}
+
 // Song list interaction
 document.querySelectorAll('.song-item').forEach(item => {
   item.addEventListener('click', async () => {
+    // deselect all
     document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
-    // clear YouTube selection
-    document.getElementById('yt-url-input').value = '';
-    document.getElementById('yt-status').textContent = 'El video se reproduce de fondo sin audio del juego';
-    document.getElementById('yt-status').className = 'yt-status';
-    ytReady = false; ytVideoId = null;
+    // reset upload zone
+    document.getElementById('drop-label').textContent = '🎵 Arrastra tu MP3 aquí';
+    dropZone.classList.remove('active');
 
     item.classList.add('selected', 'loading');
     const statusEl = item.querySelector('.song-status');
-    await loadAudioUrl(item.dataset.src, statusEl);
+    const src = item.dataset.src;
+    await loadAudioUrl(src, statusEl);
     item.classList.remove('loading');
     enableStart();
   });
 });
 
-// ── YouTube URL handling
-function extractYouTubeId(url) {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([A-Za-z0-9_-]{11})/,
-    /youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/,
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
-  }
-  return null;
+// Manual upload
+async function handleFile(file) {
+  if (!file || !file.type.startsWith('audio')) return;
+  // deselect preset songs
+  document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
+  dropZone.classList.add('active');
+  document.getElementById('drop-label').textContent = '✅ ' + file.name;
+  await loadAudioFile(file);
+  enableStart();
 }
 
-document.getElementById('yt-load-btn').addEventListener('click', () => {
-  const raw = document.getElementById('yt-url-input').value.trim();
-  const statusEl = document.getElementById('yt-status');
-  const id = extractYouTubeId(raw);
-  if (!id) {
-    statusEl.textContent = '✕ URL inválida — usa un link de YouTube';
-    statusEl.className = 'yt-status err';
-    return;
-  }
-  // Deselect song list
-  document.querySelectorAll('.song-item').forEach(s => s.classList.remove('selected'));
-  // Clear any loaded audio
-  if (audioCtx) { audioCtx.close(); audioCtx = null; }
-  audioBuffer = null; analyser = null; fftData = null;
-
-  ytVideoId = id;
-  ytReady   = true;
-  audioMode = 'youtube';
-
-  // Show preview thumbnail
-  statusEl.innerHTML = `✓ Video listo · <span style="opacity:.5;font-size:10px">${id}</span>`;
-  statusEl.className = 'yt-status ok';
-  // Preview iframe (muted, no autoplay yet)
-  const iframe = document.getElementById('yt-iframe');
-  iframe.src = `https://www.youtube.com/embed/${id}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1`;
-  document.getElementById('yt-container').classList.add('active');
-  enableStart();
+dropZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('active'); });
+dropZone.addEventListener('dragleave', () => {
+  if (!document.getElementById('drop-label').textContent.startsWith('✅'))
+    dropZone.classList.remove('active');
 });
-
-// Allow pressing Enter in input
-document.getElementById('yt-url-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('yt-load-btn').click();
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  handleFile(e.dataTransfer.files[0]);
 });
 
 startBtn.addEventListener('click', () => {
-  if (audioMode === 'song' && audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   startGame();
 });
 
 document.getElementById('retry-btn').addEventListener('click', () => {
   document.getElementById('over-screen').classList.add('hidden');
   document.getElementById('start-screen').classList.remove('hidden');
-  // Re-show YT preview if was active
-  if (ytReady && audioMode === 'youtube') {
-    const iframe = document.getElementById('yt-iframe');
-    iframe.src = `https://www.youtube.com/embed/${ytVideoId}?autoplay=0&mute=1&controls=0&rel=0&modestbranding=1`;
-    document.getElementById('yt-container').classList.add('active');
-  }
 });
 
 // Initial draw (static)
