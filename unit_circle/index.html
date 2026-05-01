@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Círculo Unitario</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0a0a0f;--surface:#13131a;--card:#1c1c26;
+    --border:#2a2a3a;--text:#e8e6f0;--muted:#7a78a0;
+    --sin:#ff6b9d;--cos:#4ecdc4;--tan:#ffd93d;--radius:#8b5cf6;
+    --angle:#a78bfa;
+  }
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+  
+  .app{max-width:420px;margin:0 auto;padding:16px}
+  
+  .header{text-align:center;margin-bottom:20px}
+  .header h1{font-size:18px;font-weight:500;letter-spacing:0.08em;color:var(--text);opacity:0.9}
+  .header p{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:0.04em}
+  
+  .canvas-wrap{position:relative;display:flex;justify-content:center;margin-bottom:16px}
+  canvas{border-radius:16px;background:var(--surface);display:block;touch-action:none}
+  
+  .angle-display{
+    position:absolute;top:12px;left:50%;transform:translateX(-50%);
+    background:rgba(10,10,15,0.85);border:0.5px solid var(--border);
+    border-radius:20px;padding:6px 14px;display:flex;gap:10px;align-items:center;
+    backdrop-filter:blur(8px);
+  }
+  .angle-num{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;color:var(--angle)}
+  .angle-rad{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+  
+  .values-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+  .val-card{
+    background:var(--card);border:0.5px solid var(--border);
+    border-radius:12px;padding:10px 8px;text-align:center;position:relative;overflow:hidden
+  }
+  .val-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+  .val-card.sin::before{background:var(--sin)}
+  .val-card.cos::before{background:var(--cos)}
+  .val-card.tan::before{background:var(--tan)}
+  .val-label{font-size:10px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px}
+  .val-num{font-family:'DM Mono',monospace;font-size:16px;font-weight:500}
+  .val-card.sin .val-num{color:var(--sin)}
+  .val-card.cos .val-num{color:var(--cos)}
+  .val-card.tan .val-num{color:var(--tan)}
+  .val-geo{font-size:9px;color:var(--muted);margin-top:3px;line-height:1.3}
+  
+  .slider-section{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
+  .slider-label{font-size:11px;color:var(--muted);margin-bottom:8px;letter-spacing:0.06em}
+  input[type=range]{
+    width:100%;-webkit-appearance:none;height:3px;border-radius:2px;
+    background:linear-gradient(to right,var(--angle) 0%,var(--border) 0%);
+    outline:none;cursor:pointer
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:18px;height:18px;border-radius:50%;
+    background:var(--angle);border:2px solid var(--bg);box-shadow:0 0 8px rgba(139,92,246,0.5)
+  }
+  
+  .angles-quick{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+  .angle-btn{
+    flex:1;min-width:54px;padding:7px 4px;border:0.5px solid var(--border);
+    background:var(--card);color:var(--muted);border-radius:8px;font-size:11px;
+    font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;transition:all 0.15s
+  }
+  .angle-btn:active,.angle-btn.active{background:rgba(139,92,246,0.15);border-color:var(--angle);color:var(--angle)}
+  
+  .legend{background:var(--card);border:0.5px solid var(--border);border-radius:12px;padding:12px}
+  .legend-title{font-size:10px;color:var(--muted);letter-spacing:0.1em;margin-bottom:10px}
+  .legend-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:11px}
+  .legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .legend-text{color:var(--muted)}
+  .legend-text strong{color:var(--text);font-weight:500}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>Círculo Unitario</h1>
+    <p>Visualiza cómo nacen las funciones trigonométricas</p>
+  </div>
+  
+  <div class="canvas-wrap">
+    <canvas id="c" width="370" height="370"></canvas>
+    <div class="angle-display">
+      <span class="angle-num" id="degDisplay">45°</span>
+      <span class="angle-rad" id="radDisplay">π/4</span>
+    </div>
+  </div>
+  
+  <div class="values-grid">
+    <div class="val-card sin">
+      <div class="val-label">sin θ</div>
+      <div class="val-num" id="sinVal">0.707</div>
+      <div class="val-geo">Altura del<br>punto P</div>
+    </div>
+    <div class="val-card cos">
+      <div class="val-label">cos θ</div>
+      <div class="val-num" id="cosVal">0.707</div>
+      <div class="val-geo">Distancia<br>horizontal</div>
+    </div>
+    <div class="val-card tan">
+      <div class="val-label">tan θ</div>
+      <div class="val-num" id="tanVal">1.000</div>
+      <div class="val-geo">sin / cos<br>pendiente</div>
+    </div>
+  </div>
+  
+  <div class="slider-section">
+    <div class="slider-label">ÁNGULO θ — arrastra para explorar</div>
+    <input type="range" id="slider" min="0" max="360" value="45" step="1">
+  </div>
+  
+  <div class="angles-quick">
+    <button class="angle-btn" data-angle="0">0°</button>
+    <button class="angle-btn active" data-angle="45">45°</button>
+    <button class="angle-btn" data-angle="90">90°</button>
+    <button class="angle-btn" data-angle="120">120°</button>
+    <button class="angle-btn" data-angle="180">180°</button>
+    <button class="angle-btn" data-angle="270">270°</button>
+  </div>
+  
+  <div class="legend">
+    <div class="legend-title">CÓMO LEER EL DIAGRAMA</div>
+    <div class="legend-row"><div class="legend-dot" style="background:#8b5cf6"></div><div class="legend-text"><strong>Radio:</strong> siempre mide 1 (círculo unitario)</div></div>
+    <div class="legend-row"><div class="legend-dot" style="background:#ff6b9d"></div><div class="legend-text"><strong>sin θ:</strong> segmento vertical desde el eje X al punto P</div></div>
+    <div class="legend-row"><div class="legend-dot" style="background:#4ecdc4"></div><div class="legend-text"><strong>cos θ:</strong> segmento horizontal desde el origen al punto P</div></div>
+    <div class="legend-row"><div class="legend-dot" style="background:#ffd93d"></div><div class="legend-text"><strong>tan θ:</strong> recta tangente en x=1 hasta la prolongación del radio</div></div>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const W = 370, H = 370;
+const cx = W/2, cy = H/2;
+const R = 130;
+let angle = 45;
+
+const SIN_C = '#ff6b9d';
+const COS_C = '#4ecdc4';
+const TAN_C = '#ffd93d';
+const RAD_C = '#8b5cf6';
+const GRID_C = 'rgba(42,42,58,0.8)';
+const TEXT_C = '#7a78a0';
+const PT_C = '#e8e6f0';
+
+function toRad(d){ return d * Math.PI / 180; }
+
+function niceRad(deg){
+  const map = {0:'0',30:'π/6',45:'π/4',60:'π/3',90:'π/2',120:'2π/3',135:'3π/4',
+    150:'5π/6',180:'π',210:'7π/6',225:'5π/4',240:'4π/3',270:'3π/2',
+    300:'5π/3',315:'7π/4',330:'11π/6',360:'2π'};
+  return map[deg] || (deg/180).toFixed(2)+'π';
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  
+  // subtle grid
+  ctx.strokeStyle = GRID_C;
+  ctx.lineWidth = 0.5;
+  for(let i=-3;i<=3;i++){
+    if(i===0) continue;
+    const xg = cx+i*(R/2), yg = cy+i*(R/2);
+    ctx.beginPath(); ctx.moveTo(xg,20); ctx.lineTo(xg,H-20); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(20,yg); ctx.lineTo(W-20,yg); ctx.stroke();
+  }
+  
+  // axes
+  ctx.strokeStyle = 'rgba(122,120,160,0.5)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(20,cy); ctx.lineTo(W-20,cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx,20); ctx.lineTo(cx,H-20); ctx.stroke();
+  
+  // axis labels
+  ctx.font = '11px DM Mono,monospace';
+  ctx.fillStyle = TEXT_C;
+  ctx.textAlign = 'center';
+  ctx.fillText('1',cx+R+8,cy-6);
+  ctx.fillText('-1',cx-R-8,cy-6);
+  ctx.fillText('1',cx+6,cy-R-4);
+  ctx.fillText('-1',cx+8,cy+R+4);
+  ctx.fillText('0',cx+5,cy+12);
+  
+  // unit circle
+  ctx.beginPath();
+  ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.strokeStyle='rgba(139,92,246,0.3)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  
+  const rad = toRad(-angle);
+  const px = cx + R*Math.cos(rad);
+  const py = cy + R*Math.sin(rad);
+  const sinV = Math.sin(toRad(angle));
+  const cosV = Math.cos(toRad(angle));
+  const tanV = Math.tan(toRad(angle));
+  
+  // arc for angle
+  ctx.beginPath();
+  ctx.arc(cx,cy,28,0,rad,angle>0);
+  ctx.strokeStyle='rgba(167,139,250,0.7)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+  ctx.fillStyle='rgba(139,92,246,0.12)';
+  ctx.fill();
+  
+  // angle label
+  const midA = toRad(-angle/2);
+  ctx.font='500 12px DM Sans,sans-serif';
+  ctx.fillStyle='#a78bfa';
+  ctx.textAlign='center';
+  ctx.fillText('θ', cx+40*Math.cos(midA), cy+40*Math.sin(midA));
+  
+  // cos segment (horizontal)
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,cy);
+  ctx.strokeStyle=COS_C; ctx.lineWidth=3; ctx.stroke();
+  // cos label
+  const cosLX = (cx+px)/2;
+  ctx.font='11px DM Mono,monospace'; ctx.fillStyle=COS_C; ctx.textAlign='center';
+  ctx.fillText('cos θ', cosLX, cy+(sinV>=0?14:-8));
+  
+  // sin segment (vertical)
+  ctx.beginPath(); ctx.moveTo(px,cy); ctx.lineTo(px,py);
+  ctx.strokeStyle=SIN_C; ctx.lineWidth=3; ctx.stroke();
+  // sin label
+  ctx.textAlign = cosV >= 0 ? 'left' : 'right';
+  const sinLX = cosV >= 0 ? px+6 : px-6;
+  ctx.font='11px DM Mono,monospace'; ctx.fillStyle=SIN_C;
+  ctx.fillText('sin θ', sinLX, (cy+py)/2);
+  
+  // tangent line at x=1
+  const tx = cx + R; // x=1 on screen
+  if(Math.abs(cosV)>0.08){
+    const ty = cy - R*tanV;
+    // line from origin extended to x=1
+    const extend = 1/cosV;
+    const lx = cx + R*extend;
+    const ly = cy - R*tanV;
+    const lyClamp = Math.max(20,Math.min(H-20,ly));
+    
+    ctx.beginPath();
+    ctx.moveTo(tx,cy);
+    ctx.lineTo(tx,lyClamp);
+    ctx.strokeStyle=TAN_C; ctx.lineWidth=2.5; ctx.setLineDash([5,3]); ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // tan label
+    const tanLY = Math.max(30,Math.min(H-30,(cy+lyClamp)/2));
+    ctx.font='11px DM Mono,monospace'; ctx.fillStyle=TAN_C;
+    ctx.textAlign = 'left';
+    ctx.fillText('tan θ', tx+6, tanLY);
+    
+    // dot at tan endpoint
+    ctx.beginPath(); ctx.arc(tx,lyClamp,3,0,Math.PI*2);
+    ctx.fillStyle=TAN_C; ctx.fill();
+  }
+  
+  // quadrant shading
+  const quad = angle<=90?1:angle<=180?2:angle<=270?3:4;
+  ctx.font='10px DM Sans,sans-serif'; ctx.fillStyle='rgba(122,120,160,0.4)'; ctx.textAlign='center';
+  ctx.fillText('II',cx-R/2,cy-R/2);
+  ctx.fillText('I',cx+R/2,cy-R/2);
+  ctx.fillText('III',cx-R/2,cy+R/2);
+  ctx.fillText('IV',cx+R/2,cy+R/2);
+  
+  // radius line
+  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(px,py);
+  ctx.strokeStyle=RAD_C; ctx.lineWidth=2; ctx.stroke();
+  
+  // radius label
+  const rLX = cx+(px-cx)*0.55, rLY = cy+(py-cy)*0.55;
+  ctx.font='10px DM Mono,monospace'; ctx.fillStyle='#8b5cf6'; ctx.textAlign='left';
+  ctx.fillText('r=1',rLX+4,rLY-4);
+  
+  // point P
+  ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+  ctx.fillStyle='rgba(10,10,15,0.8)'; ctx.fill();
+  ctx.beginPath(); ctx.arc(px,py,5,0,Math.PI*2);
+  ctx.fillStyle=PT_C; ctx.fill();
+  ctx.beginPath(); ctx.arc(px,py,7,0,Math.PI*2);
+  ctx.strokeStyle=RAD_C; ctx.lineWidth=1.5; ctx.stroke();
+  
+  // P label
+  ctx.font='500 12px DM Sans,sans-serif'; ctx.fillStyle=PT_C; ctx.textAlign='left';
+  const pLX = px+(cosV>=0?8:-30), pLY=py+(sinV>=0?-8:16);
+  ctx.fillText('P',pLX,pLY);
+  ctx.font='9px DM Mono,monospace'; ctx.fillStyle=TEXT_C;
+  const cxStr=cosV.toFixed(2), syStr=sinV.toFixed(2);
+  ctx.fillText('('+cxStr+', '+syStr+')',pLX,pLY+11);
+  
+  // origin dot
+  ctx.beginPath(); ctx.arc(cx,cy,3,0,Math.PI*2);
+  ctx.fillStyle=TEXT_C; ctx.fill();
+  
+  // update displays
+  document.getElementById('degDisplay').textContent = angle+'°';
+  document.getElementById('radDisplay').textContent = niceRad(angle);
+  document.getElementById('sinVal').textContent = sinV.toFixed(3);
+  document.getElementById('cosVal').textContent = cosV.toFixed(3);
+  const tanStr = Math.abs(cosV)<0.08 ? '∞' : tanV.toFixed(3);
+  document.getElementById('tanVal').textContent = tanStr;
+  
+  // update slider gradient
+  const sl = document.getElementById('slider');
+  const pct = angle/360*100;
+  sl.style.background=`linear-gradient(to right,#8b5cf6 ${pct}%,#2a2a3a ${pct}%)`;
+}
+
+function setAngle(a){
+  angle = ((a%360)+360)%360;
+  document.getElementById('slider').value = angle;
+  // update active buttons
+  document.querySelectorAll('.angle-btn').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.angle)===angle);
+  });
+  draw();
+}
+
+document.getElementById('slider').addEventListener('input',e=>{
+  setAngle(parseInt(e.target.value));
+});
+
+document.querySelectorAll('.angle-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>setAngle(parseInt(btn.dataset.angle)));
+});
+
+// touch drag on canvas
+let dragging = false;
+function handleCanvasDrag(e){
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const scaleX = W/rect.width;
+  const x = (clientX - rect.left)*scaleX - cx;
+  const y = (clientY - rect.top)*scaleX - cy;
+  let a = Math.round(-Math.atan2(y,x)*180/Math.PI);
+  if(a<0) a+=360;
+  setAngle(a);
+}
+canvas.addEventListener('mousedown',e=>{dragging=true;handleCanvasDrag(e)});
+canvas.addEventListener('mousemove',e=>{if(dragging)handleCanvasDrag(e)});
+canvas.addEventListener('mouseup',()=>dragging=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;handleCanvasDrag(e)},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(dragging)handleCanvasDrag(e)},{passive:false});
+canvas.addEventListener('touchend',()=>dragging=false);
+
+draw();
+</script>
+</body>
+</html>
